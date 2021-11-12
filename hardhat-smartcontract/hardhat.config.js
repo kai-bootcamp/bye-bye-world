@@ -17,5 +17,17 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
+  defaultNetwork: "hardhat",
+  paths: {
+    artifacts: './src/artifacts',
+  },
+  networks: {
+    hardhat: {},
+    rinkeby: {
+      // Lấy url từ infura và paste vào đây
+      url: "https://rinkeby.infura.io/v3/6d2497e7d52f46e9a96eed12ba578a3c",
+      accounts: ["dbda1821b80551c9d65939329250298aa3472ba22feea921c0cf5d620ea67b97"]
+    }
+  },
   solidity: "0.8.4",
 };
