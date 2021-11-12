@@ -1,8 +1,13 @@
 /// SPDX-License-Identifier: MIT
 
-/// @dev From version 0.8.0 solidity Integrated SafeMath
+/**
+ *@dev From version 0.8.0 solidity Integrated SafeMath
+ */
 pragma solidity ^0.8.10;
 
+/**
+ *@dev expands information of Token.
+ */
 interface TokenMetadata {
     function tokenUrl() external view returns (string memory);
 
@@ -20,6 +25,9 @@ interface TokenMetadata {
         );
 }
 
+/**
+ *@dev interface of IRCE20 token.
+ */
 interface IERC20 {
     function name() external view returns (string memory);
 
@@ -67,6 +75,9 @@ interface IERC20 {
     );
 }
 
+/**
+ *@dev Token Smart Contract
+ */
 contract Token is IERC20, TokenMetadata {
     mapping(address => uint256) private _balances;
 
@@ -423,14 +434,26 @@ contract Token is IERC20, TokenMetadata {
     }
 }
 
+/**
+ * @dev Contract handle create a new Token.
+ */
+
 contract TokenFactory {
+    // Maping from creator to token address.
     mapping(address => address) private tokens;
+    // length of list token created
     uint256 public tokensLength;
 
+    /**
+     * @dev Return token address latest of creator.
+     */
     function tokenOf(address creator) public view virtual returns (address) {
         return tokens[creator];
     }
 
+    /**
+     *@dev Create New Token.
+     */
     function create(
         string memory name_,
         string memory symbol_,

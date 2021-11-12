@@ -16,6 +16,7 @@ contract("TokenFactory", function (accounts) {
     assert.equal("Bye bye Token", await newToken.name())
     assert.equal("KEEYS", await newToken.symbol())
     assert.equal("bafybeigzbuwqnhho6skbkz3vgivpoth4e7ipu6a5cebx3jaequ27y7g4ae", await newToken.tokenUrl())
+    assert.equal(accounts[0], await newToken.creator())
     assert.equal(2500, await newToken.totalSupply())
     assert.equal(0, await newToken.decimals())
     assert.equal(2500, await newToken.balanceOf(accounts[0]))
@@ -26,4 +27,5 @@ contract("TokenFactory", function (accounts) {
     assert.equal(100, await newToken.balanceOf(accounts[1]))
     assert.equal(2400, await newToken.balanceOf(accounts[0]))
   });
+
 });
