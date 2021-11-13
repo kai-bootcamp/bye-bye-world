@@ -78,13 +78,13 @@ contract Token is Owned {
         console.log("Trying to send %s tokens to %s", amount, to);
 
         // Check if the transaction sender has enough tokens.
-        require(balances[msg.sender] >= amount, "Not enough tokens");
+        require(balances[from] >= amount, "Not enough tokens");
 
         // Check if the transaction sender has enough allowance tokens.
         require(allowance[from][msg.sender] >= amount, "Not enough allowance");
 
         // Transfer the amount.
-        balances[msg.sender] -= amount;
+        balances[from] -= amount;
         allowance[from][msg.sender] -= amount;
         balances[to] += amount;
 

@@ -36,7 +36,7 @@ describe("Token contract", function () {
     // To deploy our contract, we just have to call Token.deploy() and await
     // for it to be deployed(), which happens once its transaction has been
     // mined.
-    hardhatToken = await Token.deploy();
+    hardhatToken = await Token.deploy(2500, "Ironsail token", "KEEY");
   });
 
   // You can nest describe calls to create subsections.
@@ -109,4 +109,43 @@ describe("Token contract", function () {
       expect(addr2Balance).to.equal(50);
     });
   });
+
+  describe("Allowance", function() {
+    it("Should allow transferring by allowed contracts", async function() {
+      const initialOwnerBalance = await hardhatToken.balanceOf(owner.address);
+
+      // Approve 100 tokens of owner for addr1.
+      await hardhatToken.approve(addr1.address, 100);
+      const addr1Allowance = await hardhatToken.allowance(owner.address, addr1.address);
+      expect(addr1Allowance).to.equal(100);
+
+      // Address 1 transfer 100 tokens from owner to address 2
+      await hardhatToken.connect(addr1).transferFrom(owner.address, addr2.address, 70)
+      const addr1Balance = await hardhatToken.balanceOf(addr1.address);
+      expect(addr1Balance).to.equal(0);
+
+      const addr2Balance = await hardhatToken.balanceOf(addr2.address);
+      expect(addr2Balance).to.equal(70);
+
+      const ownerBalance = await hardhatToken.balanceOf(owner.address);
+      expect(ownerBalance).to.equal(initialOwnerBalance - 70);
+
+      const remainingAddr1Allowance = await hardhatToken.allowance(owner.address, addr1.address);
+      expect(remainingAddr1Allowance).to.equal(30);
+    }) 
+  });
+
+  describe("Burn", function() {
+    it("Total supply and owner balance must degree after burning", async function() {
+      const initialOwnerBalance = await hardhatToken.balanceOf(owner.address);
+      const initialTotalSupply = await hardhatToken.totalSupply();
+
+      await hardhatToken.burn(500);
+      const ownerBalance = await hardhatToken.balanceOf(owner.address);
+      expect(ownerBalance).to.equal(initialOwnerBalance - 500);
+
+      const remainingTotalSupply = await hardhatToken.totalSupply()
+      expect(remainingTotalSupply).to.equal(initialTotalSupply - 500);
+    })
+  })
 });
