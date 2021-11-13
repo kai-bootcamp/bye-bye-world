@@ -4,7 +4,7 @@ pragma solidity ^0.8.10;
 /**
  *@dev interface of IRCE20 token.
  */
-interface IERC20 {
+interface IERC20Token {
     function name() external view returns (string memory);
 
     function symbol() external view returns (string memory);

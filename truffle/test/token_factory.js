@@ -10,12 +10,12 @@ contract("TokenFactory", function (accounts) {
   var newToken
   it("should create KEEY token", async function () {
     const factory = await TokenFactory.deployed();
-    await factory.create("Bye bye Token", "KEEYS", "bafybeigzbuwqnhho6skbkz3vgivpoth4e7ipu6a5cebx3jaequ27y7g4ae", 0, 2500);
+    await factory.create("0x8f0483125FCb9aaAEFA9209D8E9d7b9C8B9Fb90F", "Bye bye Token", "KEEYS", "bafybeigzbuwqnhho6skbkz3vgivpoth4e7ipu6a5cebx3jaequ27y7g4ae", 0, 2500);
     newAddressToken = await factory.tokenOf(accounts[0])
     newToken = await Token.at(newAddressToken)
     assert.equal("Bye bye Token", await newToken.name())
     assert.equal("KEEYS", await newToken.symbol())
-    assert.equal("bafybeigzbuwqnhho6skbkz3vgivpoth4e7ipu6a5cebx3jaequ27y7g4ae", await newToken.tokenUrl())
+    assert.equal("bafybeigzbuwqnhho6skbkz3vgivpoth4e7ipu6a5cebx3jaequ27y7g4ae", await factory.tokenUrl(newAddressToken));
     assert.equal(accounts[0], await newToken.creator())
     assert.equal(2500, await newToken.totalSupply())
     assert.equal(0, await newToken.decimals())
