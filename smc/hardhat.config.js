@@ -11,7 +11,7 @@ const ALCHEMY_API_KEY = "vRcdnpikDaQ02o0wc4KoHJ5MiJPwlqQa";
 const ROPSTEN_PRIVATE_KEY = "d86316c9ef10198be8bd4d3b48d536d06a342cc9673c1617d7658e5323f61333";
 
 module.exports = {
-  solidity: "0.7.3",
+  solidity: "0.8.1",
   networks: {
     ropsten: {
       url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,

@@ -1,40 +1,79 @@
-pragma solidity ^0.8.0;
+pragma solidity ^0.8.1;
 
-import "./DappToken.sol";
+import "hardhat/console.sol";
+import "./Token.sol";
+import "./Owned.sol";
+import "./SafeMath.sol";
 
-contract DappTokenSale {
-    address admin;
-    DappToken public tokenContract;
-    uint256 public tokenPrice;
-    uint256 public tokensSold;
 
-    event Sell(address _buyer, uint256 _amount);
+contract TokenSale is Owned {
+  using SafeMath for uint256;
 
-    function DappTokenSale(DappToken _tokenContract, uint256 _tokenPrice) public {
-        admin = msg.sender;
-        tokenContract = _tokenContract;
-        tokenPrice = _tokenPrice;
-    }
+  Token public usdtContract;
+  Token public keeyContract;
+  uint256 public tokenPrice;
+  uint256 public remainingToken;
+  uint256 public collectedUsdt;
 
-    function multiply(uint x, uint y) internal pure returns (uint z) {
-        require(y == 0 || (z = x * y) / y == x);
-    }
+  uint256 public startTimestamp;
+  uint256 public endTimestamp;
 
-    function buyTokens(uint256 _numberOfTokens) public payable {
-        require(msg.value == multiply(_numberOfTokens, tokenPrice));
-        require(tokenContract.balanceOf(this) >= _numberOfTokens);
-        require(tokenContract.transfer(msg.sender, _numberOfTokens));
+  event Sell(address buyer, uint256 amount);
 
-        tokensSold += _numberOfTokens;
+  constructor(Token _keeyContract, Token _usdtContract, uint256 _tokenPrice, uint256 _startTimestamp, uint256 _endTimestamp) {
+    keeyContract = _keeyContract;
+    usdtContract = _usdtContract;
+    tokenPrice = _tokenPrice;
+    owner = msg.sender;
 
-        Sell(msg.sender, _numberOfTokens);
-    }
+    startTimestamp = _startTimestamp;
+    endTimestamp = _endTimestamp;
 
-    function endSale() public {
-        require(msg.sender == admin);
-        require(tokenContract.transfer(admin, tokenContract.balanceOf(this)));
+    // Transfer all owner's tokens to TokenSale
+    uint256 onwerBalance = keeyContract.balanceOf(msg.sender);
+    keeyContract.transfer(address(this), onwerBalance);
+    remainingToken = onwerBalance;
+  }
 
-        // Just transfer the balance to the admin
-        admin.transfer(address(this).balance);
-    }
+  function buyTokens(uint256 amount) external {
+    // Check saling time period
+    uint256 currentTime = block.timestamp;
+    require(currentTime >= startTimestamp, "Token sale has not started yet");
+    require(currentTime <= endTimestamp, "Token sale ended");
+
+    // Check adequate number of remaining tokens
+    require(remainingToken >= amount);
+  
+    // Check allowance User approved for TokenSale
+    uint256 totalPrice = amount * tokenPrice;
+    uint256 userAllowance = usdtContract.allowance(msg.sender, address(this));
+    require(userAllowance >= totalPrice, "You must approve this contract consume enough amount of USDT");
+
+    // Transfer USDT from user to TokenSale
+    usdtContract.transferFrom(msg.sender, address(this), totalPrice);
+    collectedUsdt += totalPrice;
+
+    // Transfer tokens to user -> reduce remainingToken
+    keeyContract.transfer(msg.sender, amount);
+    remainingToken -= amount;
+
+    // Transfer redudant USDT allowance back to User
+    usdtContract.transferFrom(msg.sender, msg.sender, userAllowance - totalPrice);
+
+    emit Sell(msg.sender, amount);
+  }
+
+    /**
+     * Endsale function check for passed ending time, transfer collected usdt to owner, and burn remaining tokens
+     */
+  function endSale() external onlyOwner {
+    uint256 currentTime = block.timestamp;
+    require(currentTime > endTimestamp, "Sale did not end");
+
+    // Transfer collected usdt to owner
+    usdtContract.transfer(owner, collectedUsdt);
+
+    // Burn remaining tokens after sale
+    keeyContract.burn(remainingToken);
+  }
 }
