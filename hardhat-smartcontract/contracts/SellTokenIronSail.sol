@@ -39,7 +39,7 @@ contract sellKEEYToken {
                 && mapTotalSwapPool[_tokenBuy][_tokenPurchase].isActive);
            
     }
-    function buyToken(address _tokenBuy, address _tokenPurchase, uint _amount) public returns(uint, uint){
+    function buyToken(address _tokenBuy, address _tokenPurchase, uint _amount) public payable returns(uint, uint){
         require(checkStatus(_tokenBuy,_tokenPurchase,_amount), "Invalid token or not enough");
         uint money = caculateMoney(_amount, mapTotalSwapPool[_tokenBuy][_tokenPurchase].price);
         require(ERC20(_tokenPurchase).balanceOf(msg.sender)>= money, "Not enough money to buy token");
@@ -62,21 +62,8 @@ contract sellKEEYToken {
 
 }
 library SafeMath {
-     function safeAdd(uint a, uint b) public pure returns (uint c) {
-        c = a + b;
-        require(c >= a);
-    }
-
-    function safeSub(uint a, uint b) public pure returns (uint c) {
-        require(b <= a);
-        c = a - b;
-    }
     function safeMul(uint a, uint b) public pure returns (uint c) {
         c = a * b;
         require(a == 0 || c / a == b);
-    }
-    function safeDiv(uint a, uint b) public pure returns (uint c) {
-        require(b > 0);
-        c = a / b;
     }
 }
