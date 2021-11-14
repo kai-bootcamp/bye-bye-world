@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:get/get.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:src/app/domains/connect_provider/usecase.dart';
+import 'package:src/app/domains/pool_sale_token/entity/data_token_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';
 import 'package:src/app/domains/pool_sale_token/usecase.dart';
 import 'package:http/http.dart' as http;
@@ -53,13 +54,17 @@ class HomeController extends GetxController {
     }
   }
 
-  void handleOnTapBuyTokenButton(TokenSaleEntity tokenSale) async {
+  void handleOnTapBuyTokenButton(
+    TokenSaleEntity tokenSalePair,
+    TokenEntity tokenBase,
+    TokenEntity tokenSale,
+  ) async {
     if (isConnected) {
-      Get.dialog(FormBuyTokenSaleWidget(tokenSale));
+      Get.dialog(FormBuyTokenSaleWidget(tokenSalePair, tokenBase, tokenSale));
     } else {
       await handleOnTapConnectWalletButton();
       if (isConnected) {
-        Get.dialog(FormBuyTokenSaleWidget(tokenSale));
+        Get.dialog(FormBuyTokenSaleWidget(tokenSalePair, tokenBase, tokenSale));
       } else {}
     }
   }
@@ -165,6 +170,21 @@ class HomeController extends GetxController {
       update([UpdateHomePage.tokenSales]);
     } catch (exp) {
       Get.back();
+    }
+  }
+
+  Future<void> getTokenInformation(String address) async {
+    await _poolSaleTokenUseCase.getInformationToken(address);
+    update([address]);
+  }
+
+  TokenEntity? tokenInformation(String address) {
+    final index = _poolSaleTokenUseCase.pool.tokens
+        .indexWhere((element) => element.address == address);
+    if (index != -1) {
+      return _poolSaleTokenUseCase.pool.tokens[index];
+    } else {
+      return null;
     }
   }
 }

@@ -1,4 +1,5 @@
 import 'package:src/app/data/provider/web3_provider.dart';
+import 'package:src/app/domains/pool_sale_token/entity/data_token_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';
 import 'package:src/app/domains/pool_sale_token/repository.dart';
 import '../models/token_sale_model.dart';
@@ -55,5 +56,11 @@ class PoolSaleTokenRepositoryImpl implements PoolSaleTokenRepository {
       tokenSaleId: tokenSale.tokenId,
       baseAmount: amount,
     );
+  }
+
+  @override
+  Future<TokenEntity> getInformationToken(String token) async {
+    final data = await _web3.getTokenInformation(token);
+    return TokenModel.fromBlockChain(data, token);
   }
 }

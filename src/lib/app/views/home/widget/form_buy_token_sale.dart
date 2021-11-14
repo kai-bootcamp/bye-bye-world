@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/instance_manager.dart';
+import 'package:src/app/domains/pool_sale_token/entity/data_token_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';
 import 'package:src/app/views/home/home_controller.dart';
 import 'package:src/core/themes/colors.dart';
@@ -11,9 +12,14 @@ import 'package:src/core/widgets/button_base.dart';
 import 'package:src/core/widgets/input_base.dart';
 
 class FormBuyTokenSaleWidget extends StatefulWidget {
-  FormBuyTokenSaleWidget(this.tokenSaleEntity, {Key? key}) : super(key: key);
+  const FormBuyTokenSaleWidget(
+      this.tokenSalePair, this.tokenBase, this.tokenSale,
+      {Key? key})
+      : super(key: key);
 
-  final TokenSaleEntity tokenSaleEntity;
+  final TokenSaleEntity tokenSalePair;
+  final TokenEntity tokenBase;
+  final TokenEntity tokenSale;
 
   @override
   State<FormBuyTokenSaleWidget> createState() => _FormBuyTokenSaleWidgetState();
@@ -34,7 +40,7 @@ class _FormBuyTokenSaleWidgetState extends State<FormBuyTokenSaleWidget> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                "BUY TOKEN",
+                "BUY TOKEN " + widget.tokenSale.symbol,
                 style: AppTextStyle.appBarTitle(context),
               ),
             ),
@@ -47,14 +53,16 @@ class _FormBuyTokenSaleWidgetState extends State<FormBuyTokenSaleWidget> {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(
-                  widget.tokenSaleEntity.getAmountBase(amountSale).toString() +
-                      ' USDT'),
+              child: Text(widget.tokenSalePair
+                      .getAmountBase(amountSale, widget.tokenBase.powDecimal)
+                      .toString() +
+                  " " +
+                  widget.tokenBase.symbol),
             ),
             ButtonBase(
                 onTap: () {
                   Get.find<HomeController>().buyTokenSale(
-                    tokenSale: widget.tokenSaleEntity,
+                    tokenSale: widget.tokenSalePair,
                     amount: amountSale,
                   );
                 },

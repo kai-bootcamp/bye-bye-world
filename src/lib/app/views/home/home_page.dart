@@ -1,8 +1,10 @@
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/instance_manager.dart';
+import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';
 import 'package:src/app/views/home/home_controller.dart';
 import 'package:src/core/themes/colors.dart';
 import 'package:src/core/themes/styles.dart';
@@ -50,63 +52,138 @@ class _HomePageState extends State<HomePage> {
                   spacing: 32.0,
                   runSpacing: 32.0,
                   children: _.tokenSales
-                      .map((tokenSale) => Container(
-                            padding: const EdgeInsets.all(16.0),
-                            decoration: BoxDecoration(
-                                color: AppColors.backGroundDialog(context),
-                                borderRadius: BorderRadius.circular(20)),
-                            child: SizedBox(
-                              width: 300,
-                              child: Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  _Information(
-                                    title: "Token Sale: ",
-                                    detail: tokenSale.tokenSale,
-                                  ),
-                                  _Information(
-                                    title: "Token Base: ",
-                                    detail: tokenSale.tokenBase,
-                                  ),
-                                  _Information(
-                                    title: "Total Sale: ",
-                                    detail: tokenSale.totalSale.toString(),
-                                  ),
-                                  _Information(
-                                    title: "Token Solded: ",
-                                    detail: tokenSale.totalSold.toString(),
-                                  ),
-                                  _Information(
-                                    title: "Sale rate: ",
-                                    detail: tokenSale.saleRate.toString(),
-                                  ),
-                                  _Information(
-                                    title: "Base rate: ",
-                                    detail: tokenSale.baseRate.toString(),
-                                  ),
-                                  _Information(
-                                    title: "Max cap: ",
-                                    detail: tokenSale.maxCap.toString(),
-                                  ),
-                                  _Information(
-                                    title: "Min Cap: ",
-                                    detail: tokenSale.minCap.toString(),
-                                  ),
-                                  ButtonBase(
-                                    onTap: () {
-                                      controller
-                                          .handleOnTapBuyTokenButton(tokenSale);
-                                    },
-                                    title: "Buy",
-                                  )
-                                ],
-                              ),
-                            ),
-                          ))
+                      .map((tokenSale) => _TokenSaleWidget(tokenSale))
                       .toList());
             }),
       ),
     );
+  }
+}
+
+class _TokenSaleWidget extends StatelessWidget {
+  const _TokenSaleWidget(
+    this.tokenSalePair, {
+    Key? key,
+  }) : super(key: key);
+
+  final TokenSaleEntity tokenSalePair;
+
+  @override
+  Widget build(BuildContext context) {
+    return GetBuilder<HomeController>(
+        id: tokenSalePair.tokenSale,
+        builder: (_) {
+          _.getTokenInformation(tokenSalePair.tokenSale);
+          _.getTokenInformation(tokenSalePair.tokenBase);
+          final tokenSale = _.tokenInformation(tokenSalePair.tokenSale);
+          final tokenBase = _.tokenInformation(tokenSalePair.tokenBase);
+          return Container(
+            padding: const EdgeInsets.all(16.0),
+            decoration: BoxDecoration(
+                color: AppColors.backGroundDialog(context),
+                borderRadius: BorderRadius.circular(20)),
+            child: SizedBox(
+              width: 300,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    clipBehavior: Clip.hardEdge,
+                    decoration:
+                        BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                    height: 100,
+                    width: 300,
+                    child: tokenSale != null
+                        ? Image.network(tokenSale.getIpfs, fit: BoxFit.fill)
+                        : Text(
+                            "Waitting!",
+                            style: AppTextStyle.button(context),
+                          ),
+                  ),
+                  const SizedBox(height: 16.0),
+                  _Information(
+                    title: "Token Sale: ",
+                    copyData: tokenSalePair.tokenSale,
+                    detail: tokenSale != null
+                        ? tokenSale.name + "-" + tokenSale.symbol
+                        : tokenSalePair.tokenSale,
+                  ),
+                  _Information(
+                    title: "Token Base: ",
+                    copyData: tokenSalePair.tokenSale,
+                    detail: tokenBase != null
+                        ? tokenBase.name + "-" + tokenBase.symbol
+                        : tokenSalePair.tokenBase,
+                  ),
+                  _Information(
+                    title: "Total Sale: ",
+                    detail: tokenSale != null
+                        ? (tokenSalePair.totalSale / tokenSale.powDecimal)
+                                .toString() +
+                            " " +
+                            tokenSale.symbol
+                        : (tokenSalePair.totalSale).toString() + " " + "Wei",
+                  ),
+                  _Information(
+                    title: "Token Solded: ",
+                    detail: tokenSale != null
+                        ? (tokenSalePair.totalSold / tokenSale.powDecimal)
+                                .toString() +
+                            " " +
+                            tokenSale.symbol
+                        : (tokenSalePair.totalSold).toString() + " " + "Wei",
+                  ),
+                  _Information(
+                    title: "Sale rate: ",
+                    detail: tokenSale != null
+                        ? (tokenSalePair.saleRate / tokenSale.powDecimal)
+                                .toString() +
+                            " " +
+                            tokenSale.symbol
+                        : (tokenSalePair.saleRate).toString() + " " + "Wei",
+                  ),
+                  _Information(
+                    title: "Base rate: ",
+                    detail: tokenBase != null
+                        ? (tokenSalePair.baseRate / tokenBase.powDecimal)
+                                .toString() +
+                            " " +
+                            tokenBase.symbol
+                        : (tokenSalePair.baseRate).toString() + " " + "Wei",
+                  ),
+                  _Information(
+                      title: "Max cap: ",
+                      detail: (tokenSalePair.maxCap *
+                                  tokenSalePair.saleRate /
+                                  (tokenSalePair.baseRate))
+                              .toString() +
+                          " " +
+                          (tokenSale != null ? tokenSale.symbol : "Token")),
+                  _Information(
+                      title: "Min Cap: ",
+                      detail: (tokenSalePair.minCap *
+                                  tokenSalePair.saleRate /
+                                  (tokenSalePair.baseRate))
+                              .toString() +
+                          " " +
+                          (tokenSale != null ? tokenSale.symbol : "Token")),
+                  const SizedBox(
+                    height: 16.0,
+                  ),
+                  ButtonBase(
+                    onTap: () {
+                      if (tokenBase != null && tokenSale != null) {
+                        _.handleOnTapBuyTokenButton(
+                            tokenSalePair, tokenBase, tokenSale);
+                      }
+                    },
+                    title: "Buy",
+                  )
+                ],
+              ),
+            ),
+          );
+        });
   }
 }
 
@@ -115,10 +192,12 @@ class _Information extends StatelessWidget {
     Key? key,
     required this.title,
     required this.detail,
+    this.copyData,
   }) : super(key: key);
 
   final String title;
   final String detail;
+  final String? copyData;
 
   @override
   Widget build(BuildContext context) {
@@ -128,6 +207,19 @@ class _Information extends StatelessWidget {
           padding: const EdgeInsets.all(4.0),
           child: Text(title),
         ),
+        copyData != null
+            ? CupertinoButton(
+                padding: EdgeInsets.zero,
+                child: const Icon(
+                  Icons.copy,
+                  size: 14,
+                ),
+                onPressed: () {
+                  FlutterClipboard.copy(copyData!);
+                },
+                minSize: 0.0,
+              )
+            : const SizedBox(),
         Expanded(
           child: Text(
             detail,

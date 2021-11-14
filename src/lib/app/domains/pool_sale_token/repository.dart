@@ -1,3 +1,4 @@
+import 'package:src/app/domains/pool_sale_token/entity/data_token_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';
 
 abstract class PoolSaleTokenRepository {
@@ -19,4 +20,6 @@ abstract class PoolSaleTokenRepository {
     required TokenSaleEntity tokenSale,
     required BigInt amount,
   });
+
+  Future<TokenEntity> getInformationToken(String token);
 }

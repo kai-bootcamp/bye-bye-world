@@ -141,4 +141,15 @@ class Web3ConnectProvider extends GetConnect {
     print(data);
     print("-------------buySaleToken-------------------");
   }
+
+  Future<List<dynamic>> getTokenInformation(String token) async {
+    print("-------------getTokenInformation-------------------");
+    print(token);
+    final data =
+        await Contract(tokenFactory, Interface(tokenFactoryAbi), provider!)
+            .call<List<dynamic>>("informationOfToken", [token]);
+    print(data);
+    print("--------------getTokenInformation------------------");
+    return data;
+  }
 }

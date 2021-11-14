@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
 import 'package:src/app/domains/pool_sale_token/entity/pool_entity.dart';
+import 'package:src/app/domains/pool_sale_token/entity/data_token_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';
 import 'package:src/app/domains/pool_sale_token/repository.dart';
 
 class PoolSaleTokenUseCase {
   PoolSaleTokenUseCase(this._repo);
 
-  PoolEntity pool = PoolEntity(tokenSales: []);
+  PoolEntity pool = PoolEntity(tokenSales: [], tokens: []);
 
   final PoolSaleTokenRepository _repo;
 
@@ -47,4 +47,13 @@ class PoolSaleTokenUseCase {
       amount: amount,
     );
   }
+
+  Future<void> getInformationToken(String token) async {
+    if (!pool.isHaveInformation(token)) {
+      TokenEntity tokenData = await _repo.getInformationToken(token);
+      pool.tokens.add(tokenData);
+    }
+  }
+
+  bool isGetTokenInfo(String token) => !pool.isHaveInformation(token);
 }

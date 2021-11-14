@@ -4,13 +4,13 @@ class TokenSaleEntity {
   final String tokenSale;
   final String tokenBase;
   final BigInt totalSale;
-  BigInt totalSold;
+  final BigInt totalSold;
   final BigInt saleRate;
   final BigInt baseRate;
   final BigInt maxCap;
   final BigInt minCap;
   final BigInt tokenId;
-  bool isActive;
+  final bool isActive;
   TokenSaleEntity({
     required this.tokenSale,
     required this.tokenBase,
@@ -24,7 +24,7 @@ class TokenSaleEntity {
     required this.tokenId,
   });
 
-  double getAmountBase(double amountSale) {
-    return amountSale * (baseRate / saleRate) / pow(10, 6);
+  double getAmountBase(double amountSale, BigInt powDecimalBase) {
+    return (amountSale * (baseRate / saleRate)) / powDecimalBase.toDouble();
   }
 }
