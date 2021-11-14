@@ -1,0 +1,13 @@
+1. Smart contract tạo token ERC20 
+2. Smart contract bán token IronSail
+Chức năng chính:
+A. Owner tạo pool bán token
+ A.1: Owner approve cho SM sử dụng token cần bán
+ A.2: Owner gọi function addPool(tokenSail. tokenPurchase, amount, price)
+B. User giao dịch mua token
+ B.1 User kiểm tra số lượng token cần mua khả dụng: gọi function getAmountValid(token)
+ B.1 User kiểm tra số lương token cần mua khả dụng và giá token: getAmountAndPriceOfToken(tokenBuy, tokenPurchase)
+ B.1 User kiểm tra tính hợp lệ của token cần mua: checkStatus(tokenBuy, tokenPurchase, amount)
+ B.2 User tính số tiền cần để mua token: caculatePriceOfToken(tokenBuy, tokenPurchase, amount)
+ B.3 User thực hiện approve tokenPurchase cho SM
+ B.4 User thực hiện mua token: buyToken(tokenBuy, tokenPurchase, amount)
