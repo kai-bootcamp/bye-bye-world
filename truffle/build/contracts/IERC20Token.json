@@ -2324,7 +2324,7 @@
   },
   "networks": {},
   "schemaVersion": "3.4.3",
-  "updatedAt": "2021-11-14T04:28:19.936Z",
+  "updatedAt": "2021-11-14T08:41:26.118Z",
   "devdoc": {
     "details": "interface of IRCE20 token.",
     "events": {

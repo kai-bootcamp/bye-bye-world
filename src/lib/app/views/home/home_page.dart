@@ -1,11 +1,12 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:get/get_state_manager/src/simple/get_state.dart';
-import 'package:get/get_utils/src/extensions/internacionalization.dart';
+import 'package:get/get_state_manager/get_state_manager.dart';
+import 'package:get/instance_manager.dart';
+import 'package:src/app/views/home/home_controller.dart';
+import 'package:src/core/themes/colors.dart';
 import 'package:src/core/themes/styles.dart';
-
-import 'home_controller.dart';
+import 'package:src/core/widgets/button_base.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -15,42 +16,125 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final controller = Get.find<HomeController>();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              'This is HomePage'.tr,
-              style: AppTextStyle.title(context),
-            ),
-            GetBuilder<HomeController>(
-              id: UpdateHomePage.switchButtonTheme,
-              builder: (_) {
-                return CupertinoSwitch(
-                  value: !_.isLightMode,
-                  onChanged: (value) {
-                    _.changeThemeData();
-                  },
-                );
-              },
-            ),
-            GetBuilder<HomeController>(
-              id: UpdateHomePage.switchButtonLanguage,
-              builder: (_) {
-                return CupertinoSwitch(
-                  value: _.isVietNamese,
-                  onChanged: (value) {
-                    _.changeLanguageApp();
-                  },
-                );
-              },
-            )
-          ],
+      appBar: AppBar(
+        centerTitle: false,
+        title: Text(
+          "BYE BYE WORLD",
+          style: AppTextStyle.appBarTitle(context),
         ),
+        actions: [
+          ButtonBase(
+            onTap: controller.handleOnTapSaleYourTokenButton,
+            title: "Sale Your Token",
+          ),
+          GetBuilder<HomeController>(
+              id: UpdateHomePage.connectButton,
+              builder: (_) {
+                return ButtonBase(
+                  onTap: _.handleOnTapConnectWalletButton,
+                  title: _.isConnected ? "Connected" : "Connect Wallet",
+                );
+              })
+        ],
       ),
+      body: Center(
+        child: GetBuilder<HomeController>(
+            id: UpdateHomePage.tokenSales,
+            builder: (_) {
+              return Wrap(
+                  children: _.tokenSales
+                      .map((tokenSale) => Container(
+                            padding: const EdgeInsets.all(16.0),
+                            decoration: BoxDecoration(
+                                color: AppColors.backGroundDialog(context),
+                                borderRadius: BorderRadius.circular(20)),
+                            child: SizedBox(
+                              width: 300,
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _Information(
+                                    title: "Token Sale: ",
+                                    detail: tokenSale.tokenSale,
+                                  ),
+                                  _Information(
+                                    title: "Token Base: ",
+                                    detail: tokenSale.tokenBase,
+                                  ),
+                                  _Information(
+                                    title: "Total Sale: ",
+                                    detail: tokenSale.totalSale.toString(),
+                                  ),
+                                  _Information(
+                                    title: "Token Solded: ",
+                                    detail: tokenSale.totalSold.toString(),
+                                  ),
+                                  _Information(
+                                    title: "Sale rate: ",
+                                    detail: tokenSale.saleRate.toString(),
+                                  ),
+                                  _Information(
+                                    title: "Base rate: ",
+                                    detail: tokenSale.baseRate.toString(),
+                                  ),
+                                  _Information(
+                                    title: "Max cap: ",
+                                    detail: tokenSale.maxCap.toString(),
+                                  ),
+                                  _Information(
+                                    title: "Min Cap: ",
+                                    detail: tokenSale.minCap.toString(),
+                                  ),
+                                  ButtonBase(
+                                    onTap: () {
+                                      controller.handleOnTapSaleYourTokenButton(
+                                          tokenSale);
+                                    },
+                                    title: "Buy",
+                                  )
+                                ],
+                              ),
+                            ),
+                          ))
+                      .toList());
+            }),
+      ),
+    );
+  }
+}
+
+class _Information extends StatelessWidget {
+  const _Information({
+    Key? key,
+    required this.title,
+    required this.detail,
+  }) : super(key: key);
+
+  final String title;
+  final String detail;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(4.0),
+          child: Text(title),
+        ),
+        Expanded(
+          child: Text(
+            detail,
+            overflow: TextOverflow.ellipsis,
+            maxLines: 1,
+            textAlign: TextAlign.end,
+          ),
+        ),
+      ],
     );
   }
 }
