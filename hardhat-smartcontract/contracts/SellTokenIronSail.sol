@@ -18,6 +18,7 @@ contract sellKEEYToken {
         owner = msg.sender;
     }
     function addPool( address _tokenSell, address _tokenPurchase, uint _amount, uint _price) public returns(bool){
+        require(msg.sender == owner, "access denied");
         TokenSell memory poolSale = TokenSell(_amount,_price,true);
         mapTotalSwapPool[_tokenSell][_tokenPurchase] = poolSale;
         return true;
@@ -28,6 +29,9 @@ contract sellKEEYToken {
     }
     function getAmountAndPriceOfToken(address _tokenBuy, address _tokenPurchase) public view returns(uint, uint){
         return(getAmountValid(_tokenBuy),mapTotalSwapPool[_tokenBuy][_tokenPurchase].price );
+    }
+    function caculatePriceOfToken(address _tokenBuy, address _tokenPurchase, uint _amount) public view returns(uint){
+        return(caculateMoney(_amount,mapTotalSwapPool[_tokenBuy][_tokenPurchase].price ));
     }
     function checkStatus( address _tokenBuy, address _tokenPurchase, uint _amount) public view returns( bool){
         return (
