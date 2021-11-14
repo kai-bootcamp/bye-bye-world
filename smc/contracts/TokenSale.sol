@@ -20,25 +20,33 @@ contract TokenSale is Owned {
 
   event Sell(address buyer, uint256 amount);
 
-  constructor(Token _keeyContract, Token _usdtContract, uint256 _tokenPrice, uint256 _startTimestamp, uint256 _endTimestamp) {
+  constructor(Token _keeyContract, Token _usdtContract, uint256 _tokenPrice) {
+    require(address(_keeyContract) != address(0));
+    require(address(_usdtContract) != address(0));
+
     keeyContract = _keeyContract;
     usdtContract = _usdtContract;
     tokenPrice = _tokenPrice;
     owner = msg.sender;
+  }
 
-    startTimestamp = _startTimestamp;
+  function startSale(uint256 _endTimestamp) external onlyOwner {
     endTimestamp = _endTimestamp;
 
     // Transfer all owner's tokens to TokenSale
     uint256 onwerBalance = keeyContract.balanceOf(msg.sender);
-    keeyContract.transfer(address(this), onwerBalance);
+    keeyContract.transferFrom(msg.sender, address(this), onwerBalance);
     remainingToken = onwerBalance;
+
+    startTimestamp = block.timestamp;
+    console.log("Start sale at", startTimestamp);
+
   }
 
   function buyTokens(uint256 amount) external {
     // Check saling time period
     uint256 currentTime = block.timestamp;
-    require(currentTime >= startTimestamp, "Token sale has not started yet");
+    require(startTimestamp != 0, "Token sale has not started yet");
     require(currentTime <= endTimestamp, "Token sale ended");
 
     // Check adequate number of remaining tokens
@@ -57,16 +65,13 @@ contract TokenSale is Owned {
     keeyContract.transfer(msg.sender, amount);
     remainingToken -= amount;
 
-    // Transfer redudant USDT allowance back to User
-    usdtContract.transferFrom(msg.sender, msg.sender, userAllowance - totalPrice);
-
     emit Sell(msg.sender, amount);
   }
 
     /**
      * Endsale function check for passed ending time, transfer collected usdt to owner, and burn remaining tokens
      */
-  function endSale() external onlyOwner {
+  function endSale() external onlyOwner returns (bool) {
     uint256 currentTime = block.timestamp;
     require(currentTime > endTimestamp, "Sale did not end");
 
@@ -75,5 +80,9 @@ contract TokenSale is Owned {
 
     // Burn remaining tokens after sale
     keeyContract.burn(remainingToken);
+
+    console.log("Ended sale at: ", currentTime);
+
+    return true;
   }
 }
