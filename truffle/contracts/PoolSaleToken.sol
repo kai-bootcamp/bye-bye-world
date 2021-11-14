@@ -86,4 +86,47 @@ contract PoolSaleToken is Context {
     {
         return _owners[tokenId];
     }
+
+    /**
+     * @dev Get TokenSale info of Token Sale Id
+     */
+    function getTokenSaleOfId(uint256 tokenSaleId)
+        public
+        view
+        virtual
+        returns (TokenSale memory)
+    {
+        return _tokenSaleInfos[tokenSaleId];
+    }
+
+    /**
+     * @dev send base token to owner of tokensale
+     * @dev send sale token to buyer.
+     */
+
+    function buySaleToken(uint256 tokenId, uint256 baseAmount) public virtual {
+        TokenSale storage tokenSaleStruct = _tokenSaleInfos[tokenId];
+        uint256 tokenSaleRequest = (baseAmount * tokenSaleStruct.saleRate) /
+            tokenSaleStruct.baseRate;
+        uint256 tokenBaseExactly = (tokenSaleRequest *
+            tokenSaleStruct.baseRate) / tokenSaleStruct.saleRate;
+        IERC20Token saleToken = IERC20Token(tokenSaleStruct.tokenSale);
+        IERC20Token baseToken = IERC20Token(tokenSaleStruct.tokenBase);
+        address owner = _owners[tokenId];
+        require(
+            saleToken.allowance(owner, address(this)) >= tokenSaleRequest &&
+                (tokenSaleStruct.totalSale - tokenSaleStruct.totalSold) >=
+                tokenSaleRequest,
+            "Not enough balance token sale for request"
+        );
+        require(
+            tokenBaseExactly >= tokenSaleStruct.minCap &&
+                tokenBaseExactly <= tokenSaleStruct.maxCap,
+            "Error Limit buy"
+        );
+        /// sender must be approve baseToken for poolSaleToken before transfer.
+        baseToken.safeTransferFrom(_msgSender(), owner, tokenBaseExactly);
+        saleToken.safeTransferFrom(owner, _msgSender(), tokenSaleRequest);
+        tokenSaleStruct.totalSold += tokenSaleRequest;
+    }
 }
