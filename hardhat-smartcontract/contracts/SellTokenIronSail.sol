@@ -19,6 +19,8 @@ contract sellKEEYToken {
     }
     function addPool( address _tokenSell, address _tokenPurchase, uint _amount, uint _price) public returns(bool){
         require(msg.sender == owner, "access denied");
+          require(ERC20(_tokenSell).balanceOf(msg.sender) >= _amount, "Not enough Token");
+        require(ERC20(_tokenSell).allowance(msg.sender,address(this)) >= _amount, "Please approve Smartcontract Sell token");
         TokenSell memory poolSale = TokenSell(_amount,_price,true);
         mapTotalSwapPool[_tokenSell][_tokenPurchase] = poolSale;
         return true;
