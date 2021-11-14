@@ -32,17 +32,25 @@ contract sellKEEYToken {
         require(_amount > 0 && _daysAfter > 0 && _price >=0, "Amount token, price and number day sell must more than 0" );
         require(ERC20(_tokenSell).balanceOf(msg.sender) >= _amount, "Not enough money" );
         require(ERC20(_tokenSell).allowance(msg.sender, address(this)) >= _amount, "Please approve amount token as register" );
+        /** 
+            Default min = 1 va max = 5
+         */
         tokenSellInfo memory _tokenSellInfo = tokenSellInfo( msg.sender,_amount,_amount,0,_price,1,5,block.timestamp, _daysAfter, true);
         mapTotalSwapPool[_tokenSell][_tokenReceiver] = _tokenSellInfo;
         return true;
     }
 
-    function checkStatus( address _tokenBuy, address _tokenPurchase, uint _amount) public view returns( bool){
-        uint tokenValid = mapTotalSwapPool[_tokenBuy][_tokenPurchase].amountValid;
+    function getValidToken(address _tokenBuy, address _tokenPurchase) private view returns(uint){
+        uint tokenSMValid = mapTotalSwapPool[_tokenBuy][_tokenPurchase].amountValid;
         uint tokenOfSeller = ERC20(_tokenBuy).balanceOf(mapTotalSwapPool[_tokenBuy][_tokenPurchase].seller);
-        uint token_Avaiable = tokenValid >= tokenOfSeller ? tokenValid : tokenOfSeller;
+        uint token_Avaiable = tokenSMValid >= tokenOfSeller ? tokenOfSeller :tokenSMValid;
+        return( token_Avaiable);
+    }
+
+    function checkStatus( address _tokenBuy, address _tokenPurchase, uint _amount) public view returns( bool){
+
         return (
-                token_Avaiable >=_amount
+                getValidToken(_tokenBuy,_tokenPurchase) >=_amount
                 && mapTotalSwapPool[_tokenBuy][_tokenPurchase].isActive 
                 && mapTotalSwapPool[_tokenBuy][_tokenPurchase].amountValid >= _amount
                 && mapTotalSwapPool[_tokenBuy][_tokenPurchase].start + 
@@ -50,10 +58,8 @@ contract sellKEEYToken {
            
     }
     function getTokenPoolInfo(address _tokenBuy, address _tokenPurchase) public view returns(uint avaiable, uint price, uint min, uint max){
-        uint tokenValid = mapTotalSwapPool[_tokenBuy][_tokenPurchase].amountValid;
-        uint tokenOfSeller = ERC20(_tokenBuy).balanceOf(mapTotalSwapPool[_tokenBuy][_tokenPurchase].seller);
-        uint token_Avaiable = tokenValid >= tokenOfSeller ? tokenValid : tokenOfSeller;
-        return( token_Avaiable,
+        
+        return( getValidToken(_tokenBuy,_tokenPurchase),
                 mapTotalSwapPool[_tokenBuy][_tokenPurchase].price,
                 mapTotalSwapPool[_tokenBuy][_tokenPurchase].min,
                 mapTotalSwapPool[_tokenBuy][_tokenPurchase].max);
@@ -86,7 +92,6 @@ contract sellKEEYToken {
         ERC20(_token).transferFrom(_pay, _sell, _amount);
     }
     
-
 }
 library SafeMath {
      function safeAdd(uint a, uint b) public pure returns (uint c) {
@@ -98,12 +103,10 @@ library SafeMath {
         require(b <= a);
         c = a - b;
     }
-
     function safeMul(uint a, uint b) public pure returns (uint c) {
         c = a * b;
         require(a == 0 || c / a == b);
     }
-
     function safeDiv(uint a, uint b) public pure returns (uint c) {
         require(b > 0);
         c = a / b;
