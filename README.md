@@ -17,3 +17,6 @@
 
 2. Build UI Frontend to connect with smart contract.
 - Use Flutter Web.
+
+3. Deploy use Firebase Hosting.
+   https://bye-bye-worldvl.web.app/

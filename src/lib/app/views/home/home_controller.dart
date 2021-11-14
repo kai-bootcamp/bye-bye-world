@@ -42,7 +42,18 @@ class HomeController extends GetxController {
     }
   }
 
-  void handleOnTapSaleYourTokenButton(TokenSaleEntity tokenSale) async {
+  void handleOnTapSaleYourTokenButton() async {
+    if (isConnected) {
+      Get.dialog(FormCreateTokenSaleWidget());
+    } else {
+      await handleOnTapConnectWalletButton();
+      if (isConnected) {
+        Get.dialog(FormCreateTokenSaleWidget());
+      } else {}
+    }
+  }
+
+  void handleOnTapBuyTokenButton(TokenSaleEntity tokenSale) async {
     if (isConnected) {
       Get.dialog(FormBuyTokenSaleWidget(tokenSale));
     } else {
@@ -64,25 +75,31 @@ class HomeController extends GetxController {
     required double maxCap,
     required Uint8List file,
   }) async {
-    Get.dialog(const CupertinoActivityIndicator());
-    final url = await uploadImage(file: file);
-    final _minCap = minCap * baseRate / saleRate;
-    final _maxCap = maxCap * baseRate / saleRate;
-    await _poolSaleTokenUseCase.createTokenSale(
-      name: name,
-      symbol: symbol,
-      url: url,
-      decimal: decimal,
-      totalSupply: totalSupply,
-      saleRate: BigInt.from(saleRate * pow(10, decimal)),
-      baseRate: BigInt.from(baseRate * pow(10, 6)),
-      minCap: BigInt.from(_minCap * pow(10, 6)),
-      maxCap: BigInt.from(
-        _maxCap * pow(10, 6),
-      ),
-    );
-    Get.back();
-    Get.back();
+    try {
+      Get.dialog(const CupertinoActivityIndicator());
+      final url = await _uploadImage(file: file);
+      final _minCap = minCap * baseRate / saleRate;
+      final _maxCap = maxCap * baseRate / saleRate;
+      await _poolSaleTokenUseCase.createTokenSale(
+        name: name,
+        symbol: symbol,
+        url: url,
+        decimal: decimal,
+        totalSupply: totalSupply,
+        saleRate: BigInt.from(saleRate * pow(10, decimal)),
+        baseRate: BigInt.from(baseRate * pow(10, 6)),
+        minCap: BigInt.from(_minCap * pow(10, 6)),
+        maxCap: BigInt.from(
+          _maxCap * pow(10, 6),
+        ),
+      );
+      await _poolSaleTokenUseCase.getTokenSaleOfPool();
+      update([UpdateHomePage.tokenSales]);
+      Get.back();
+      Get.back();
+    } catch (exp) {
+      Get.back();
+    }
   }
 
   Future<Uint8List?> handleLoadImageButton() async {
@@ -94,7 +111,7 @@ class HomeController extends GetxController {
     }
   }
 
-  Future<String> uploadImage({
+  Future<String> _uploadImage({
     required Uint8List file,
   }) async {
     var request = http.MultipartRequest(
@@ -134,16 +151,20 @@ class HomeController extends GetxController {
     required TokenSaleEntity tokenSale,
     required double amount,
   }) async {
-    Get.dialog(const CupertinoActivityIndicator());
-    final baseAmount =
-        BigInt.from(amount * (tokenSale.baseRate / tokenSale.saleRate));
-    await _poolSaleTokenUseCase.buySaleToken(
-      tokenSale: tokenSale,
-      amount: baseAmount,
-    );
-    await _poolSaleTokenUseCase.getTokenSaleOfPool();
-    Get.back();
-    Get.back();
-    update([UpdateHomePage.tokenSales]);
+    try {
+      Get.dialog(const CupertinoActivityIndicator());
+      final baseAmount =
+          BigInt.from(amount * (tokenSale.baseRate / tokenSale.saleRate));
+      await _poolSaleTokenUseCase.buySaleToken(
+        tokenSale: tokenSale,
+        amount: baseAmount,
+      );
+      await _poolSaleTokenUseCase.getTokenSaleOfPool();
+      Get.back();
+      Get.back();
+      update([UpdateHomePage.tokenSales]);
+    } catch (exp) {
+      Get.back();
+    }
   }
 }

@@ -47,6 +47,8 @@ class _HomePageState extends State<HomePage> {
             id: UpdateHomePage.tokenSales,
             builder: (_) {
               return Wrap(
+                  spacing: 32.0,
+                  runSpacing: 32.0,
                   children: _.tokenSales
                       .map((tokenSale) => Container(
                             padding: const EdgeInsets.all(16.0),
@@ -92,8 +94,8 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                   ButtonBase(
                                     onTap: () {
-                                      controller.handleOnTapSaleYourTokenButton(
-                                          tokenSale);
+                                      controller
+                                          .handleOnTapBuyTokenButton(tokenSale);
                                     },
                                     title: "Buy",
                                   )

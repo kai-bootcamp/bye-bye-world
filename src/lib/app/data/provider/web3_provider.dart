@@ -121,7 +121,7 @@ class Web3ConnectProvider extends GetConnect {
     print(baseToken);
     final tx =
         await Contract(baseToken, Interface(tokenAbi), provider!.getSigner())
-            .send("approve", [poolSaleToken, amount]);
+            .send("approve", [poolSaleToken, amount * BigInt.two]);
     final data = await tx.wait();
     print(data);
     print("-------------createTokenSale-------------------");
