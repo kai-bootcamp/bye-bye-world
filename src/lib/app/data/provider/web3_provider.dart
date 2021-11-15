@@ -156,6 +156,23 @@ class Web3ConnectProvider extends GetConnect {
     print("-------------createTokenSale-------------------");
   }
 
+  Future<BigInt> checkAllowanceOfAddress({
+    String? owner,
+    String? sender,
+    String? token,
+  }) async {
+    print("-------------buySaleToken-------------------");
+    owner ??= await provider!.getSigner().getAddress();
+    sender ??= poolSaleToken;
+    token ??= tokenUSDT;
+    final allownaceBaseTokenOfSender =
+        await Contract(token, Interface(tokenAbi), provider!)
+            .call<BigInt>("allowance", [owner, sender]);
+    print(allownaceBaseTokenOfSender);
+    print("-------------buySaleToken-------------------");
+    return allownaceBaseTokenOfSender;
+  }
+
   Future<void> buySaleToken({
     required BigInt tokenSaleId,
     required BigInt baseAmount,

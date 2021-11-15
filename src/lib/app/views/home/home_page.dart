@@ -86,7 +86,7 @@ class _TokenSaleWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GetBuilder<HomeController>(
-        id: tokenSalePair.tokenSale,
+        id: UpdateHomePage.information,
         builder: (_) {
           _.getTokenInformation(tokenSalePair.tokenSale);
           _.getTokenInformation(tokenSalePair.tokenBase);

@@ -48,10 +48,13 @@ class PoolSaleTokenRepositoryImpl implements PoolSaleTokenRepository {
     required TokenSaleEntity tokenSale,
     required BigInt amount,
   }) async {
-    await _web3.approveBaseTokenForPool(
-      amount: amount,
-      baseToken: tokenSale.tokenBase,
-    );
+    final allowanceValue = await _web3.checkAllowanceOfAddress();
+    if (allowanceValue <= amount) {
+      await _web3.approveBaseTokenForPool(
+        amount: amount,
+        baseToken: tokenSale.tokenBase,
+      );
+    }
     await _web3.buySaleToken(
       tokenSaleId: tokenSale.tokenId,
       baseAmount: amount,

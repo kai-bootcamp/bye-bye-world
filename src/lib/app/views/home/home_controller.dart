@@ -14,12 +14,7 @@ import 'package:http/http.dart' as http;
 import 'package:src/app/views/home/widget/form_buy_token_sale.dart';
 import 'widget/form_create_token_sale.dart';
 
-enum UpdateHomePage {
-  connectButton,
-  image,
-  tokenSales,
-  page,
-}
+enum UpdateHomePage { connectButton, image, tokenSales, page, information }
 
 class HomeController extends GetxController {
   HomeController(this._connectProviderUseCase, this._poolSaleTokenUseCase);
@@ -182,8 +177,12 @@ class HomeController extends GetxController {
   }
 
   Future<void> getTokenInformation(String address) async {
-    await _poolSaleTokenUseCase.getInformationToken(address);
-    update([address]);
+    final index = _poolSaleTokenUseCase.pool.tokens
+        .indexWhere((element) => element.address == address);
+    if (index == -1) {
+      await _poolSaleTokenUseCase.getInformationToken(address);
+      update([UpdateHomePage.information]);
+    }
   }
 
   TokenEntity? tokenInformation(String address) {
