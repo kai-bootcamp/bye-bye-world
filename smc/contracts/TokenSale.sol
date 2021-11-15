@@ -5,6 +5,7 @@ import "./Token.sol";
 import "./Owned.sol";
 import "./SafeMath.sol";
 
+// TODO: use balanceOf instead collectedUsdt
 
 contract TokenSale is Owned {
   using SafeMath for uint256;
