@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:src/app/domains/pool_sale_token/entity/pool_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/data_token_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';
@@ -62,4 +64,8 @@ class PoolSaleTokenUseCase {
   }
 
   bool isGetTokenInfo(String token) => !pool.isHaveInformation(token);
+
+  Future<String> uploadImageToIpfs({required Uint8List file}) async {
+    return await _repo.uploadImageToIpfs(file: file);
+  }
 }

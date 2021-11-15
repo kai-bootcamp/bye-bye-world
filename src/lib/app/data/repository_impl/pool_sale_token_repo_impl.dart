@@ -1,3 +1,6 @@
+import 'dart:typed_data';
+
+import 'package:src/app/data/provider/ipfs_provider.dart';
 import 'package:src/app/data/provider/web3_provider.dart';
 import 'package:src/app/domains/pool_sale_token/entity/data_token_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';
@@ -5,8 +8,9 @@ import 'package:src/app/domains/pool_sale_token/repository.dart';
 import '../models/token_sale_model.dart';
 
 class PoolSaleTokenRepositoryImpl implements PoolSaleTokenRepository {
-  PoolSaleTokenRepositoryImpl(this._web3);
+  PoolSaleTokenRepositoryImpl(this._web3, this._ipfs);
   final Web3ConnectProvider _web3;
+  final IPFSProvider _ipfs;
 
   @override
   Future<void> createTokenSale({
@@ -65,5 +69,10 @@ class PoolSaleTokenRepositoryImpl implements PoolSaleTokenRepository {
   Future<TokenEntity> getInformationToken(String token) async {
     final data = await _web3.getTokenInformation(token);
     return TokenModel.fromBlockChain(data, token);
+  }
+
+  @override
+  Future<String> uploadImageToIpfs({required Uint8List file}) async {
+    return await _ipfs.uploadImage(file: file);
   }
 }

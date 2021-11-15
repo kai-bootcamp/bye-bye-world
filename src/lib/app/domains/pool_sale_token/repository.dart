@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:src/app/domains/pool_sale_token/entity/data_token_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';
 
@@ -22,4 +24,6 @@ abstract class PoolSaleTokenRepository {
   });
 
   Future<TokenEntity> getInformationToken(String token);
+
+  Future<String> uploadImageToIpfs({required Uint8List file});
 }
