@@ -10,19 +10,16 @@ import DialogTitle from '@mui/material/DialogTitle';
 // TODO: form validation
 
 const TransferForm = (props) => {
-  const { open, setOpen, tokenSymbol, transferTokens, balance } = props
+  const { open, setOpen, buyTokens, tokenSaleData: { tokenPrice, remainingToken } } = props
   const [formData, setFormData] = React.useState({})
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const handleTransfer = () => {
-    transferTokens(
-      formData["address"],
-      JSON.parse(formData["amount"])
-    )
+  const handleBuy = () => {
     setOpen(false)
+    buyTokens(JSON.parse(formData["amount"] || 0))
   }
 
   const handleChange = (e) => {
@@ -34,22 +31,11 @@ const TransferForm = (props) => {
 
   return (
     <Dialog open={open} onClose={handleClose}>
-      <DialogTitle>Transfer {tokenSymbol} token</DialogTitle>
+      <DialogTitle>Buy token</DialogTitle>
       <DialogContent>
         <DialogContentText>
-          To transfer tokens, please enter recipient address and amount here.
+          To buy tokens, please enter amount here.
         </DialogContentText>
-        <TextField
-          autoFocus
-          margin="dense"
-          name="address"
-          label="Address"
-          type="text"
-          fullWidth
-          variant="standard"
-          onChange={handleChange}
-          required
-        />
         <TextField
           margin="dense"
           name="amount"
@@ -58,13 +44,24 @@ const TransferForm = (props) => {
           fullWidth
           variant="standard"
           onChange={handleChange}
-          helperText={`Maximum: ${balance} (${tokenSymbol})`}
+          helperText={`Remaining tokens: ${remainingToken}. Exchange rate: ${tokenPrice}`}
+          required
+        />
+        <TextField
+          margin="dense"
+          name="amount"
+          label="Total price"
+          type="number"
+          fullWidth
+          disabled
+          variant="standard"
+          value={tokenPrice * JSON.parse(formData["amount"] || 0)}
           required
         />
       </DialogContent>
       <DialogActions>
         <Button onClick={handleClose}>Cancel</Button>
-        <Button onClick={handleTransfer}>Transfer</Button>
+        <Button onClick={handleBuy}>Buy</Button>
       </DialogActions>
     </Dialog>
   );

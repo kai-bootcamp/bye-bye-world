@@ -13,6 +13,7 @@ import contractAddress from "../../contracts/contract-address.json";
 import NoWalletDetected from "./components/NoWalletDetected";
 import ConnectWallet from "./components/ConnectWallet";
 import Token from './components/Token'
+import TokenSale from './components/TokenSale'
 
 const useStyles = makeStyles(() => ({
   mainRoot: {
@@ -133,6 +134,14 @@ const TokenManagement = (props) => {
             selectedAddress={selectedAddress}
           />
         }
+      </div>
+
+      <div>
+        <h2>Token sales</h2>
+        <TokenSale
+          contractAddress={contractAddress.TokenSale}
+          signer={signer}
+        />
       </div>
     </div>
   )

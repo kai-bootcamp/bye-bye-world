@@ -81,6 +81,7 @@ contract TokenSale is Owned {
 
     // Burn remaining tokens after sale
     keeyContract.burn(remainingToken);
+    remainingToken = 0;
 
     console.log("Ended sale at: ", currentTime);
 

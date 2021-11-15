@@ -16,7 +16,9 @@ module.exports = {
   networks: {
     ropsten: {
       url: `https://eth-ropsten.alchemyapi.io/v2/${ALCHEMY_API_KEY}`,
-      accounts: [`0x${ROPSTEN_KEEY_PRIVATE_KEY}`, `0x${ROPSTEN_USDT_PRIVATE_KEY}`]
+      accounts: [`0x${ROPSTEN_KEEY_PRIVATE_KEY}`, `0x${ROPSTEN_USDT_PRIVATE_KEY}`],
+      gas: 2100000,
+      gasPrice: 8000000000
     }
   }
 };

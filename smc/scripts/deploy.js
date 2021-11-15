@@ -17,7 +17,7 @@ async function main() {
   console.log("keeyToken address:", keeyToken.address);
 
   const currentTime = Math.round(new Date().getTime() / 1000);
-  const endingTime = currentTime + 60 * 60; // 60 mins
+  const endingTime = currentTime + 24 * 60 * 60; // 60 mins
 
   const tokenSale = await TokenSale.connect(keeyOwner).deploy(keeyToken.address, usdtToken.address, 10000);
   await keeyToken.connect(keeyOwner).approve(tokenSale.address, 2500);
