@@ -27,21 +27,29 @@ const Token = (props) => {
   const [transactionError, setTransactionError] = useState(undefined)
   const [sendingTransaction, setSendingTransaction] = useState(undefined)
 
-  const { token, name, symbol } = tokenData
+  const { token, name, symbol, totalSupply } = tokenData
 
   useEffect(() => {
     if (!tokenAddress) {
       return
     }
     const token = new ethers.Contract(tokenAddress, TokenArtifact.abi, signer);
+    if (!token) return;
     const getTokenInfo = async () => {
-      const tokenName = await token.name();
-      const tokenSymbol = await token.symbol();
-      setTokenData({
-        token: token,
-        name: tokenName,
-        symbol: tokenSymbol
-      });
+      try {
+        const tokenName = await token.name();
+        const tokenSymbol = await token.symbol();
+        const totalSupply = await token.totalSupply();
+
+        setTokenData({
+          token: token,
+          name: tokenName,
+          symbol: tokenSymbol,
+          totalSupply: totalSupply.toNumber()
+        });
+      } catch (error) {
+        console.log(error)
+      }
     }
 
     getTokenInfo()
@@ -121,6 +129,9 @@ const Token = (props) => {
 
   const [isTransferFormOpen, setIsTransferFormOpen] = useState(false)
 
+  if (!token) {
+    return null
+  }
 
   return (
     <div className={classes.tokenRoot}>
@@ -128,8 +139,12 @@ const Token = (props) => {
         <b>Token:</b> {name}
       </h3>
       <h3>
+        <b>Total supply:</b> {totalSupply} {symbol}
+      </h3>
+      <h3>
         <b>You have:</b> {balance} {symbol}
       </h3>
+      
 
       <Button variant="outlined" onClick={() => setIsTransferFormOpen(true)}>Transfer</Button>
       <TransferForm

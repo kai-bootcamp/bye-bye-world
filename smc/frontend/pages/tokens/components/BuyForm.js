@@ -9,8 +9,9 @@ import DialogTitle from '@mui/material/DialogTitle';
 
 // TODO: form validation
 
-const TransferForm = (props) => {
-  const { open, setOpen, buyTokens, tokenSaleData: { tokenPrice, remainingToken } } = props
+const BuyForm = (props) => {
+  const { open, setOpen, buyTokens, tokenSaleData = { } } = props
+  const { tokenPrice, remainingToken } = tokenSaleData
   const [formData, setFormData] = React.useState({})
 
   const handleClose = () => {
@@ -67,4 +68,4 @@ const TransferForm = (props) => {
   );
 }
 
-export default TransferForm
+export default BuyForm

@@ -38,42 +38,47 @@ const TokenSale = (props) => {
 
   const updateTokenSaleData = async () => {
     if (!tokenSale) return;
-    const tokenSaleData = await Promise.all([
-      tokenSale.usdtContract(),
-      tokenSale.keeyContract(),
-      tokenSale.tokenPrice(),
-      tokenSale.remainingToken(),
-      tokenSale.startTimestamp(),
-      tokenSale.endTimestamp(),
-    ])
+    try {
+      const tokenSaleData = await Promise.all([
+        tokenSale.usdtContract(),
+        tokenSale.keeyContract(),
+        tokenSale.tokenPrice(),
+        tokenSale.remainingToken(),
+        tokenSale.startTimestamp(),
+        tokenSale.endTimestamp(),
+      ])
 
-    // The Contract object
-    const sourceToken = new ethers.Contract(tokenSaleData[0], TokenArtifact.abi, signer);
-    const sourceTokenName = await sourceToken.name();
-    const sourceTokenSymbol = await sourceToken.symbol();
+      // The Contract object
+      const sourceToken = new ethers.Contract(tokenSaleData[0], TokenArtifact.abi, signer);
+      const sourceTokenName = await sourceToken.name();
+      const sourceTokenSymbol = await sourceToken.symbol();
 
-    const targetToken = new ethers.Contract(tokenSaleData[1], TokenArtifact.abi, signer);
-    const targetTokenName = await targetToken.name();
-    const targetTokenSymbol = await targetToken.symbol();
+      const targetToken = new ethers.Contract(tokenSaleData[1], TokenArtifact.abi, signer);
+      const targetTokenName = await targetToken.name();
+      const targetTokenSymbol = await targetToken.symbol();
 
-    setTokenSaleData({
-      usdtContract: tokenSaleData[0],
-      keeyContract: tokenSaleData[1],
-      sourceToken: {
-        token: sourceToken,
-        name: sourceTokenName,
-        symbol: sourceTokenSymbol,
-      },
-      targetToken: {
-        token: sourceToken,
-        name: targetTokenName,
-        symbol: targetTokenSymbol,
-      },
-      tokenPrice: tokenSaleData[2].toNumber(),
-      remainingToken: tokenSaleData[3].toNumber(),
-      startTimestamp: tokenSaleData[4].toNumber(),
-      endTimestamp: tokenSaleData[5].toNumber(),
-    });
+      setTokenSaleData({
+        usdtContract: tokenSaleData[0],
+        keeyContract: tokenSaleData[1],
+        sourceToken: {
+          token: sourceToken,
+          name: sourceTokenName,
+          symbol: sourceTokenSymbol,
+        },
+        targetToken: {
+          token: sourceToken,
+          name: targetTokenName,
+          symbol: targetTokenSymbol,
+        },
+        tokenPrice: tokenSaleData[2].toNumber(),
+        remainingToken: tokenSaleData[3].toNumber(),
+        startTimestamp: tokenSaleData[4].toNumber(),
+        endTimestamp: tokenSaleData[5].toNumber(),
+      });
+    } catch (error) {
+      setTokenSale(null)
+      console.log(error)
+    } 
   }
 
   useEffect(() => {
@@ -154,7 +159,13 @@ const TokenSale = (props) => {
 
   const [isBuyFormOpen, setIsBuyFormOpen] = useState(false)
 
-  const { sourceToken, targetToken } = tokenSaleData
+  const { sourceToken, targetToken, tokenPrice, remainingToken, startTimestamp, endTimestamp } = tokenSaleData
+
+  const buyDisabled = (moment().unix() > endTimestamp) || (remainingToken === 0)
+
+  if (!tokenSale) {
+    return null
+  }
 
   return (
     <div className={classes.tokenSaleRoot}>
@@ -168,19 +179,31 @@ const TokenSale = (props) => {
         Source token: {sourceToken?.symbol}
       </h3>
       <h3>
-        Exchange rate: {tokenSaleData?.tokenPrice}
+        Exchange rate: {tokenPrice}
       </h3>
       <h3>
-        Remaining tokens: {tokenSaleData?.remainingToken}
+        Remaining tokens: {remainingToken}
       </h3>
       <h4>
-        Starting date: {moment.unix(tokenSaleData?.startTimestamp).format("HH:mm:ss - DD/MM/YYYY")}
+        Starting date: {moment.unix(startTimestamp).format("HH:mm:ss - DD/MM/YYYY")}
       </h4>
       <h4>
-        Ending date: {moment.unix(tokenSaleData?.endTimestamp).format("HH:mm:ss - DD/MM/YYYY")}
+        Ending date: {moment.unix(endTimestamp).format("HH:mm:ss - DD/MM/YYYY")}
       </h4>
 
-      <Button variant="outlined" onClick={() => setIsBuyFormOpen(true)}>Buy</Button>
+      <Button 
+        variant="outlined" 
+        onClick={() => setIsBuyFormOpen(true)}
+        disabled={buyDisabled}
+      >
+        Buy
+      </Button>
+      {(moment().unix() > endTimestamp) &&
+        <p>Sale ended</p>
+      }
+      {(remainingToken === 0) &&
+        <p>Out of sale tokens</p>
+      }
       <BuyForm
         open={isBuyFormOpen}
         setOpen={setIsBuyFormOpen}
