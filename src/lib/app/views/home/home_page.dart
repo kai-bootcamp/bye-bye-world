@@ -44,16 +44,21 @@ class _HomePageState extends State<HomePage> {
               })
         ],
       ),
-      body: Center(
+      body: SingleChildScrollView(
         child: GetBuilder<HomeController>(
             id: UpdateHomePage.tokenSales,
             builder: (_) {
-              return Wrap(
-                  spacing: 32.0,
-                  runSpacing: 32.0,
-                  children: _.tokenSales
-                      .map((tokenSale) => _TokenSaleWidget(tokenSale))
-                      .toList());
+              return Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(32.0),
+                  child: Wrap(
+                      spacing: 32.0,
+                      runSpacing: 32.0,
+                      children: _.tokenSales
+                          .map((tokenSale) => _TokenSaleWidget(tokenSale))
+                          .toList()),
+                ),
+              );
             }),
       ),
     );
@@ -77,6 +82,9 @@ class _TokenSaleWidget extends StatelessWidget {
           _.getTokenInformation(tokenSalePair.tokenBase);
           final tokenSale = _.tokenInformation(tokenSalePair.tokenSale);
           final tokenBase = _.tokenInformation(tokenSalePair.tokenBase);
+          print('--------_TokenSaleWidget----------');
+          print(tokenSalePair);
+          print('--------_TokenSaleWidget----------');
           return Container(
             padding: const EdgeInsets.all(16.0),
             decoration: BoxDecoration(
