@@ -1,7 +1,4 @@
-import 'dart:typed_data';
-
 import 'package:flutter/material.dart';
-import 'package:get/get_state_manager/get_state_manager.dart';
 import 'package:get/instance_manager.dart';
 import 'package:src/app/domains/pool_sale_token/entity/data_token_entity.dart';
 import 'package:src/app/domains/pool_sale_token/entity/token_sale_entity.dart';

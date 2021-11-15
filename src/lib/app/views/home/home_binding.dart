@@ -1,5 +1,4 @@
 import 'package:get/instance_manager.dart';
-import 'package:src/app/domains/connect_provider/repository.dart';
 import 'package:src/app/domains/connect_provider/usecase.dart';
 import 'package:src/app/domains/pool_sale_token/usecase.dart';
 

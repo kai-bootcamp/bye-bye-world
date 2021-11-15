@@ -1,5 +1,3 @@
-import 'dart:math';
-
 class TokenSaleEntity {
   final String tokenSale;
   final String tokenBase;

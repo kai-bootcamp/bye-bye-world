@@ -8,18 +8,19 @@ import 'package:src/core/themes/styles.dart';
 import 'package:src/core/widgets/button_base.dart';
 import 'package:src/core/widgets/input_base.dart';
 
+// ignore: must_be_immutable
 class FormCreateTokenSaleWidget extends GetView<HomeController> {
   FormCreateTokenSaleWidget({Key? key}) : super(key: key);
 
-  var name = "";
-  var symbol = "";
-  BigInt totalSupply = BigInt.zero;
-  int decimal = 0;
-  double rateToken = 1;
-  double rateBase = 1;
-  double maxBuy = 5;
-  double minBuy = 1;
-  Uint8List? file;
+  var _name = "";
+  var _symbol = "";
+  BigInt _totalSupply = BigInt.zero;
+  int _decimal = 0;
+  double _rateToken = 1;
+  double _rateBase = 1;
+  double _maxBuy = 5;
+  double _minBuy = 1;
+  Uint8List? _file;
 
   @override
   Widget build(BuildContext context) {
@@ -51,16 +52,16 @@ class FormCreateTokenSaleWidget extends GetView<HomeController> {
                     child: GetBuilder<HomeController>(
                         id: UpdateHomePage.image,
                         builder: (_) {
-                          return file != null
+                          return _file != null
                               ? InkWell(
                                   onTap: () async {
-                                    file = await controller
+                                    _file = await controller
                                         .handleLoadImageButton();
                                   },
-                                  child: Image.memory(file!, fit: BoxFit.fill))
+                                  child: Image.memory(_file!, fit: BoxFit.fill))
                               : IconButton(
                                   onPressed: () async {
-                                    file = await controller
+                                    _file = await controller
                                         .handleLoadImageButton();
                                   },
                                   icon: const Icon(Icons.image),
@@ -74,49 +75,49 @@ class FormCreateTokenSaleWidget extends GetView<HomeController> {
                       InputBase(
                         hintText: "Name",
                         onChange: (value) {
-                          name = value;
+                          _name = value;
                         },
                       ),
                       InputBase(
                         hintText: "Symbol",
                         onChange: (value) {
-                          symbol = value;
+                          _symbol = value;
                         },
                       ),
                       InputBase(
                         hintText: "Total Supply",
                         onChange: (value) {
-                          totalSupply = BigInt.parse(value);
+                          _totalSupply = BigInt.parse(value);
                         },
                       ),
                       InputBase(
                         hintText: "Decimal",
                         onChange: (value) {
-                          decimal = int.parse(value);
+                          _decimal = int.parse(value);
                         },
                       ),
                       InputBase(
                         hintText: "Rate Token",
                         onChange: (value) {
-                          rateToken = double.parse(value);
+                          _rateToken = double.parse(value);
                         },
                       ),
                       InputBase(
                         hintText: "Rate USDT",
                         onChange: (value) {
-                          rateBase = double.parse(value);
+                          _rateBase = double.parse(value);
                         },
                       ),
                       InputBase(
                         hintText: "Max buy",
                         onChange: (value) {
-                          maxBuy = double.parse(value);
+                          _maxBuy = double.parse(value);
                         },
                       ),
                       InputBase(
                         hintText: "Min buy",
                         onChange: (value) {
-                          minBuy = double.parse(value);
+                          _minBuy = double.parse(value);
                         },
                       ),
                     ],
@@ -130,17 +131,17 @@ class FormCreateTokenSaleWidget extends GetView<HomeController> {
                 padding: const EdgeInsets.all(16.0),
                 title: "Create",
                 onTap: () async {
-                  if (file != null) {
+                  if (_file != null) {
                     controller.handleOnTapCreateTokenSaleButton(
-                      name: name,
-                      symbol: symbol,
-                      decimal: decimal,
-                      totalSupply: totalSupply,
-                      file: file!,
-                      baseRate: rateBase,
-                      saleRate: rateToken,
-                      minCap: minBuy,
-                      maxCap: maxBuy,
+                      name: _name,
+                      symbol: _symbol,
+                      decimal: _decimal,
+                      totalSupply: _totalSupply,
+                      file: _file!,
+                      baseRate: _rateBase,
+                      saleRate: _rateToken,
+                      minCap: _minBuy,
+                      maxCap: _maxBuy,
                     );
                   }
                 },
