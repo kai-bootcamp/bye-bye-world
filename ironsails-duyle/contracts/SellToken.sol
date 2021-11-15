@@ -5,11 +5,13 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-
 contract SellTokenContract is Ownable{
     using SafeERC20 for IERC20;
 
     // State variables
+    address public tokenAddressLAD = 0xb7E13cE03319559EC7bc41C0202E17875b82f222;
+    address public tokenAddressUSDT = 0x5074EB29a56b4c2bE687BE27c242BcBb8aA1224c;
+    address public LADowner = 0x1D3501C5dfe6D132f94a42b1304c2f1eE9F0871e;
     IERC20 tokenIdo;        // Là đồng bán ra: LAD 
     IERC20 tokenBase;       // Là đồng dùng để mua : USDT
     uint256 rate = 10**10;  // tokenBase / tokenDeposit --> rate = LAD = 10000
@@ -18,14 +20,19 @@ contract SellTokenContract is Ownable{
     uint256 public totalSupply = 2500;
     uint256 public totalSold;
     mapping(address => uint256) public depositors; // depositors[address người mua] = số USDT người đó đã nạp vào để mua tokenIDO
-    address public poolWallet = 0x1D3501C5dfe6D132f94a42b1304c2f1eE9F0871e;  // Address sẽ nhận USDT từ buyer
     
+    
+    
+    constructor() public{
+        tokenIdo = IERC20(tokenAddressLAD);
+        tokenBase = IERC20(tokenAddressUSDT);
+    }
     
     /// Lượng LAD tối thiểu có thể mua: 1
     /// Lượng LAD tối đa có thể mua: 1000
     /// @dev Chỉ cho nạp mua nếu lượng mua vào vẫn còn dưới mức cho phép (individualCap)
     /// @param ammountLAD: Số lượng LAD token muốn mua
-    function buy(uint256 ammountLAD) public {
+    function buy(uint256 ammountLAD) payable public{
         uint256 ammountUSDT = ammountLAD * rate;
         // Kiểm tra xem còn token LAD để bán không
         require(
@@ -39,8 +46,8 @@ contract SellTokenContract is Ownable{
             "Invalid Number of LAD token!"
         );
         
-        // Chuyển tiền USDT vào ví poolWallet
-        tokenBase.transfer(poolWallet, ammountUSDT);
+        // Chuyển tiền USDT từ user --> pool (SeelToken contract)
+        tokenBase.safeTransferFrom(msg.sender, address(this), ammountUSDT);
 
         // Cập nhật pool USDT
         totalUSDTDeposited += ammountUSDT;
@@ -50,10 +57,9 @@ contract SellTokenContract is Ownable{
         depositors[msg.sender] += ammountUSDT;
         
         // Chuyển key cho user
-        tokenIdo.transfer(msg.sender, ammountLAD);
+        tokenIdo.safeTransferFrom(LADowner, msg.sender, ammountLAD);
         
         // Cập nhật totalSold
         totalSold += ammountLAD;
     }
-    
 }
