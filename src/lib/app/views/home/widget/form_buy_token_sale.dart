@@ -54,7 +54,8 @@ class _FormBuyTokenSaleWidgetState extends State<FormBuyTokenSaleWidget> {
             Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(widget.tokenSalePair
-                      .getAmountBase(amountSale, widget.tokenBase.powDecimal)
+                      .getAmountBase(amountSale, widget.tokenSale.powDecimal,
+                          widget.tokenBase.powDecimal)
                       .toString() +
                   " " +
                   widget.tokenBase.symbol),

@@ -24,7 +24,14 @@ class TokenSaleEntity {
     required this.tokenId,
   });
 
-  double getAmountBase(double amountSale, BigInt powDecimalBase) {
-    return (amountSale * (baseRate / saleRate)) / powDecimalBase.toDouble();
+  double getAmountBase(
+      double amountSale, BigInt powDecimalSale, BigInt powDecimalBase) {
+    return (amountSale * (baseRate / saleRate)) /
+        (powDecimalBase / powDecimalSale);
+  }
+
+  @override
+  String toString() {
+    return 'TokenSaleEntity(tokenSale: $tokenSale, tokenBase: $tokenBase, totalSale: $totalSale, totalSold: $totalSold, saleRate: $saleRate, baseRate: $baseRate, maxCap: $maxCap, minCap: $minCap, tokenId: $tokenId, isActive: $isActive)';
   }
 }
