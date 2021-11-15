@@ -6,8 +6,6 @@ import { ethers } from "ethers";
 
 // We import the contract's artifacts and address here, as we are going to be
 // using them with ethers
-import TokenArtifact from "../../contracts/Token.json";
-import TokenSaleArtifact from "../../contracts/TokenSale.json";
 import contractAddress from "../../contracts/contract-address.json";
 
 import NoWalletDetected from "./components/NoWalletDetected";
@@ -55,9 +53,6 @@ const TokenManagement = (props) => {
   const [selectedAddress, setSelectedAddress] = useState(undefined)
   const [provider, setProvider] = useState(undefined)
   const [signer, setSigner] = useState(undefined)
-  const [keeyToken, setKeeyToken] = useState(undefined)
-  const [usdtToken, setUsdtToken] = useState(undefined)
-  const [tokenSale, setTokenSale] = useState(undefined)
 
 
   useEffect(() => {
@@ -72,26 +67,6 @@ const TokenManagement = (props) => {
       // For this, you need the account signer...
       const signer = provider.getSigner(0)
       setSigner(signer)
-
-      // The Contract object
-      const keeyToken = new ethers.Contract(contractAddress.KEEYToken, TokenArtifact.abi, signer);
-      const keeyName = await keeyToken.name();
-      const keeySymbol = await keeyToken.symbol();
-      setKeeyToken({
-        token: keeyToken,
-        tokenData: { name: keeyName, symbol: keeySymbol }
-      });
-
-      const usdtToken = new ethers.Contract(contractAddress.USDTToken, TokenArtifact.abi, signer);
-      const usdtName = await usdtToken.name();
-      const usdtSymbol = await usdtToken.symbol();
-      setUsdtToken({
-        token: usdtToken,
-        tokenData: { name: usdtName, symbol: usdtSymbol }
-      });
-
-      const tokenSale = new ethers.Contract(contractAddress.TokenSale, TokenSaleArtifact.abi, signer);
-      setTokenSale(tokenSale)
     }
 
     initializeEthers()
@@ -122,24 +97,23 @@ const TokenManagement = (props) => {
       <h1><b>Address:</b> {selectedAddress}</h1>
       <div>
         <h2>My wallet</h2>
-        {keeyToken && 
-          <Token
-            token={keeyToken}
-            selectedAddress={selectedAddress}
-          />
-        }
-        {usdtToken &&
-          <Token
-            token={usdtToken}
-            selectedAddress={selectedAddress}
-          />
-        }
+        <Token
+          tokenAddress={contractAddress.KEEYToken}
+          selectedAddress={selectedAddress}
+          signer={signer}
+        />
+        <Token
+          tokenAddress={contractAddress.USDTToken}
+          selectedAddress={selectedAddress}
+          signer={signer}
+        />
       </div>
 
       <div>
         <h2>Token sales</h2>
         <TokenSale
           contractAddress={contractAddress.TokenSale}
+          selectedAddress={selectedAddress}
           signer={signer}
         />
       </div>

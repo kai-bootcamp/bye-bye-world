@@ -22,7 +22,7 @@ const useStyles = makeStyles(() => ({
 const TokenSale = (props) => {
   const classes = useStyles()
 
-  const { contractAddress, signer } = props
+  const { contractAddress, selectedAddress, signer } = props
   const [tokenSale, setTokenSale] = useState(undefined)
   const [tokenSaleData, setTokenSaleData] = useState({})
   const [transactionError, setTransactionError] = useState(undefined)
@@ -56,8 +56,6 @@ const TokenSale = (props) => {
     const targetTokenName = await targetToken.name();
     const targetTokenSymbol = await targetToken.symbol();
 
-    // TODO: get tokens' info
-
     setTokenSaleData({
       usdtContract: tokenSaleData[0],
       keeyContract: tokenSaleData[1],
@@ -71,10 +69,10 @@ const TokenSale = (props) => {
         name: targetTokenName,
         symbol: targetTokenSymbol,
       },
-      tokenPrice: Number(tokenSaleData[2].toString()),
-      remainingToken: Number(tokenSaleData[3].toString()),
-      startTimestamp: Number(tokenSaleData[4].toString()),
-      endTimestamp: Number(tokenSaleData[5].toString()),
+      tokenPrice: tokenSaleData[2].toNumber(),
+      remainingToken: tokenSaleData[3].toNumber(),
+      startTimestamp: tokenSaleData[4].toNumber(),
+      endTimestamp: tokenSaleData[5].toNumber(),
     });
   }
 
@@ -85,6 +83,17 @@ const TokenSale = (props) => {
       clearInterval(pollingTokenSaleInterval)
     }
   }, [tokenSale])
+
+  const approveAllowance = async (address, amount) => {
+    const { sourceToken } = tokenSaleData
+
+    const approveTx = await sourceToken.token.approve(address, amount);
+    setSendingTransaction(approveTx.hash);
+    const approveReceipt = await approveTx.wait();
+    if (approveReceipt.status === 0) {
+      throw new Error("Approve transaction failed");
+    }
+  }
 
   const buyTokens = async (amount) => {
     // 1. Approve spent by tokenSale
@@ -98,12 +107,13 @@ const TokenSale = (props) => {
       const { sourceToken, tokenPrice } = tokenSaleData
 
       // Approve tokenSale to consume source tokens
-      const approveTx = await sourceToken.approve(tokenSale.address, tokenPrice * amount);
-      setSendingTransaction(approveTx.hash);
-      const approveReceipt = await approveTx.wait();
-      if (approveReceipt.status === 0) {
-        throw new Error("Approve transaction failed");
+      // Check current allowance first
+      const currentAllowance = await sourceToken.token.allowance(selectedAddress, tokenSale.address);
+      if (currentAllowance.toNumber() !== 0) {
+        await approveAllowance(tokenSale.address, 0)
       }
+
+      await approveAllowance(tokenSale.address, tokenPrice * amount)
 
       // We send the transaction, and save its hash in the Dapp's state. This
       // way we can indicate that we are waiting for it to be mined.
@@ -112,7 +122,7 @@ const TokenSale = (props) => {
 
       // We use .wait() to wait for the transaction to be mined. This method
       // returns the transaction's receipt.
-      const buyTokenReceipt = await tx.wait();
+      const buyTokenReceipt = await buyTokensTx.wait();
 
       // The receipt, contains a status flag, which is 0 to indicate an error.
       if (buyTokenReceipt.status === 0) {

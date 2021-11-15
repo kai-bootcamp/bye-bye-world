@@ -19,6 +19,12 @@ module.exports = {
       accounts: [`0x${ROPSTEN_KEEY_PRIVATE_KEY}`, `0x${ROPSTEN_USDT_PRIVATE_KEY}`],
       gas: 2100000,
       gasPrice: 8000000000
-    }
+    },
+    localhost: {
+      url: "http://127.0.0.1:8545"
+    },
+    hardhat: {
+      chainId: 1337
+    },
   }
 };

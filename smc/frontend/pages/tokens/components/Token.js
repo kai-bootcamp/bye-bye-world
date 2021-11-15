@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { ethers } from "ethers";
 import { makeStyles } from '@mui/styles'
 import Button from '@mui/material/Button';
 
 import TransferForm from './TransferForm'
+
+import TokenArtifact from '../../../contracts/Token.json'
 
 import { ERROR_CODE_TX_REJECTED_BY_USER } from '../../../constants/index'
 import getErrorMessage from '../../../utils/getErrorMessage'
@@ -18,15 +21,37 @@ const useStyles = makeStyles(() => ({
 const Token = (props) => {
   const classes = useStyles()
 
-  const { token: { token, tokenData }, selectedAddress } = props
+  const { tokenAddress, signer, selectedAddress } = props
+  const [tokenData, setTokenData] = useState({})
   const [balance, setBalance] = useState(0)
   const [transactionError, setTransactionError] = useState(undefined)
   const [sendingTransaction, setSendingTransaction] = useState(undefined)
 
+  const { token, name, symbol } = tokenData
+
+  useEffect(() => {
+    if (!tokenAddress) {
+      return
+    }
+    const token = new ethers.Contract(tokenAddress, TokenArtifact.abi, signer);
+    const getTokenInfo = async () => {
+      const tokenName = await token.name();
+      const tokenSymbol = await token.symbol();
+      setTokenData({
+        token: token,
+        name: tokenName,
+        symbol: tokenSymbol
+      });
+    }
+
+    getTokenInfo()
+    updateBalance()
+  }, [tokenAddress, signer])
+
   const updateBalance = async () => {
-    if (!selectedAddress) return;
+    if (!selectedAddress || !token) return;
     const newBalance = await token.balanceOf(selectedAddress);
-    setBalance(newBalance)
+    setBalance(newBalance.toNumber())
   }
 
   useEffect(() => {
@@ -35,7 +60,7 @@ const Token = (props) => {
     return () => {
       clearInterval(pollingBalanceInterval)
     }
-  }, [selectedAddress])
+  }, [token, selectedAddress])
 
   const transferTokens = async (to, amount) => {
     // Sending a transaction is a complex operation:
@@ -100,19 +125,19 @@ const Token = (props) => {
   return (
     <div className={classes.tokenRoot}>
       <h3>
-        <b>Token:</b> {tokenData?.name}
+        <b>Token:</b> {name}
       </h3>
       <h3>
-        <b>You have:</b> {balance.toString()} {tokenData?.symbol}
+        <b>You have:</b> {balance} {symbol}
       </h3>
 
       <Button variant="outlined" onClick={() => setIsTransferFormOpen(true)}>Transfer</Button>
       <TransferForm
         open={isTransferFormOpen} 
         setOpen={setIsTransferFormOpen}
-        tokenSymbol={tokenData?.symbol}
+        tokenSymbol={symbol}
         transferTokens={transferTokens}
-        balance={balance.toString()}
+        balance={balance}
       />
 
       {sendingTransaction && <h4>Sending transaction: {sendingTransaction}</h4>}
