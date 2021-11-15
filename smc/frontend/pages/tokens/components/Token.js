@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react'
 import { ethers } from "ethers";
 import { makeStyles } from '@mui/styles'
 import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
+import Grid from '@mui/material/Grid';
 
 import TransferForm from './TransferForm'
 
@@ -12,9 +14,8 @@ import getErrorMessage from '../../../utils/getErrorMessage'
 
 const useStyles = makeStyles(() => ({
   tokenRoot: {
-    border: '1px solid black',
+    width: '100%',
     padding: 10,
-    marginBottom: 20,
   }
 }))
 
@@ -134,30 +135,31 @@ const Token = (props) => {
   }
 
   return (
-    <div className={classes.tokenRoot}>
-      <h3>
-        <b>Token:</b> {name}
-      </h3>
-      <h3>
-        <b>Total supply:</b> {totalSupply} {symbol}
-      </h3>
-      <h3>
-        <b>You have:</b> {balance} {symbol}
-      </h3>
-      
+    <Grid container item xs={4}>
+      <Paper elevation={2} className={classes.tokenRoot}>
+          <h3>
+            <b>Token:</b> {name}
+          </h3>
+          <h3>
+            <b>Total supply:</b> {totalSupply} {symbol}
+          </h3>
+          <h3>
+            <b>You have:</b> {balance} {symbol}
+          </h3>
+          
+          <Button variant="outlined" onClick={() => setIsTransferFormOpen(true)}>Transfer</Button>
+          <TransferForm
+            open={isTransferFormOpen} 
+            setOpen={setIsTransferFormOpen}
+            tokenSymbol={symbol}
+            transferTokens={transferTokens}
+            balance={balance}
+          />
 
-      <Button variant="outlined" onClick={() => setIsTransferFormOpen(true)}>Transfer</Button>
-      <TransferForm
-        open={isTransferFormOpen} 
-        setOpen={setIsTransferFormOpen}
-        tokenSymbol={symbol}
-        transferTokens={transferTokens}
-        balance={balance}
-      />
-
-      {sendingTransaction && <h4>Sending transaction: {sendingTransaction}</h4>}
-      {transactionError && <h4>Error: {getErrorMessage(transactionError)}</h4>}
-    </div>
+          {sendingTransaction && <h4>Sending transaction: {sendingTransaction}</h4>}
+          {transactionError && <h4>Error: {getErrorMessage(transactionError)}</h4>}
+      </Paper>
+    </Grid>
   )
 }
 

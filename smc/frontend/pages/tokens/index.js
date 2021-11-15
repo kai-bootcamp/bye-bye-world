@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { makeStyles } from '@mui/styles';
+import Grid from '@mui/material/Grid';
+import Paper from '@mui/material/Paper';
 
 // We'll use ethers to interact with the Ethereum network and our contract
 import { ethers } from "ethers";
@@ -71,12 +73,12 @@ const TokenManagement = (props) => {
 
     initializeEthers()
   }, [])
-  
- 
+
+
   if (!walletDetected) {
     return (
       <div className={classes.mainRoot}>
-        <NoWalletDetected/>
+        <NoWalletDetected />
       </div>
     )
   }
@@ -93,20 +95,22 @@ const TokenManagement = (props) => {
   }
 
   return (
-    <div className={classes.mainRoot}>
-      <h1><b>Address:</b> {selectedAddress}</h1>
+    <Paper elevation={2} className={classes.mainRoot}>
+      <h1>Address: <a href={`https://ropsten.etherscan.io/address/${selectedAddress}`}>{selectedAddress}</a></h1>
       <div>
         <h2>My wallet</h2>
-        <Token
-          tokenAddress={contractAddress.KEEYToken}
-          selectedAddress={selectedAddress}
-          signer={signer}
-        />
-        <Token
-          tokenAddress={contractAddress.USDTToken}
-          selectedAddress={selectedAddress}
-          signer={signer}
-        />
+        <Grid container spacing={4}>
+          <Token
+            tokenAddress={contractAddress.KEEYToken}
+            selectedAddress={selectedAddress}
+            signer={signer}
+          />
+          <Token
+            tokenAddress={contractAddress.USDTToken}
+            selectedAddress={selectedAddress}
+            signer={signer}
+          />
+        </Grid>
       </div>
 
       <div>
@@ -117,7 +121,7 @@ const TokenManagement = (props) => {
           signer={signer}
         />
       </div>
-    </div>
+    </Paper>
   )
 }
 

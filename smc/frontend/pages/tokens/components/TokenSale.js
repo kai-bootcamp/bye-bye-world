@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { ethers } from "ethers";
 import { makeStyles } from '@mui/styles'
 import Button from '@mui/material/Button';
+import Paper from '@mui/material/Paper';
 import moment from 'moment'
 
 import BuyForm from './BuyForm'
@@ -13,7 +14,6 @@ import getErrorMessage from '../../../utils/getErrorMessage'
 
 const useStyles = makeStyles(() => ({
   tokenSaleRoot: {
-    border: '1px solid black',
     padding: 10,
     marginBottom: 20,
   }
@@ -78,7 +78,7 @@ const TokenSale = (props) => {
     } catch (error) {
       setTokenSale(null)
       console.log(error)
-    } 
+    }
   }
 
   useEffect(() => {
@@ -168,7 +168,7 @@ const TokenSale = (props) => {
   }
 
   return (
-    <div className={classes.tokenSaleRoot}>
+    <Paper elevation={2} className={classes.tokenSaleRoot}>
       <h2>
         Token sale
       </h2>
@@ -191,8 +191,8 @@ const TokenSale = (props) => {
         Ending date: {moment.unix(endTimestamp).format("HH:mm:ss - DD/MM/YYYY")}
       </h4>
 
-      <Button 
-        variant="outlined" 
+      <Button
+        variant="outlined"
         onClick={() => setIsBuyFormOpen(true)}
         disabled={buyDisabled}
       >
@@ -213,7 +213,7 @@ const TokenSale = (props) => {
 
       {sendingTransaction && <h4>Sending transaction: {sendingTransaction}</h4>}
       {transactionError && <h4>Error: {getErrorMessage(transactionError)}</h4>}
-    </div>
+    </Paper>
   )
 }
 
