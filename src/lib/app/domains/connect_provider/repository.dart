@@ -1,3 +1,3 @@
 abstract class ConnectProviderRepository {
-  Future<bool> connectWithProvider();
+  Future<void> connectWithProvider();
 }

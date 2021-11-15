@@ -11,7 +11,13 @@ class PoolSaleTokenUseCase {
   final PoolSaleTokenRepository _repo;
 
   Future<void> getTokenSaleOfPool() async {
-    pool.tokenSales = await _repo.getTokenSaleOfPool();
+    try {
+      pool.tokenSales = await _repo.getTokenSaleOfPool();
+    } catch (exp) {
+      pool
+        ..tokenSales = []
+        ..tokens = [];
+    }
   }
 
   Future<void> createTokenSale({

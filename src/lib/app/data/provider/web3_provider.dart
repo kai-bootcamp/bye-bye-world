@@ -1,8 +1,11 @@
 import 'dart:html';
+import 'dart:math';
 
 import 'package:flutter_web3/flutter_web3.dart';
 import 'package:get/get_connect.dart';
+import 'package:get/instance_manager.dart';
 import 'package:src/app/data/config.dart';
+import 'package:src/app/views/home/home_controller.dart';
 
 class Web3ConnectProvider extends GetConnect {
   final supportChain = rinkeby.chainId;
@@ -10,19 +13,45 @@ class Web3ConnectProvider extends GetConnect {
   static const tokenFactory = "0x435a9C938A1469C2717cC1564FAC781B14931DaC";
   static const tokenUSDT = "0x5CD0508320eEA7F86a075fb3C243015c1C4a2ba4";
 
-  Future<bool> connectToMetamask() async {
+  Future<void> connectToMetamask() async {
+    final controller = Get.find<HomeController>();
     if (ethereum != null) {
       final addresss = await ethereum!.requestAccount();
       if (addresss.isNotEmpty) {
         final _currentChain = await ethereum!.getChainId();
-        if (_currentChain == supportChain) {
-          return true;
-        } else {
-          return false;
-        }
+        controller.updateConnected(true, !(_currentChain == supportChain));
+      } else {
+        final _currentChain = await ethereum!.getChainId();
+        controller.updateConnected(false, !(_currentChain == supportChain));
       }
+
+      ethereum!.onChainChanged((chainId) {
+        print("--------onAccountsChanged-------------");
+        controller.updateConnected(
+            ethereum!.isConnected(), !(chainId == supportChain));
+        print("--------onAccountsChanged-------------");
+      });
+      ethereum!.onAccountsChanged((accounts) {
+        print("--------onAccountsChanged-------------");
+        controller.update([UpdateHomePage.page]);
+        print("--------onAccountsChanged-------------");
+      });
+
+      ethereum!.onDisconnect((error) {
+        print("--------onDisconnect-------------");
+        controller.updateConnected(false, true);
+        print("--------onDisconnect-------------");
+      });
+
+      ethereum!.onConnect((connectInfo) async {
+        print("--------onConnect-------------");
+        final isConnected = ethereum!.isConnected();
+        final isCorrectConnected =
+            (await ethereum!.getChainId()) == supportChain;
+        controller.updateConnected(isConnected, !isCorrectConnected);
+        print("---------onConnect------------");
+      });
     }
-    return false;
   }
 
   Future<String> createTokenFactory({

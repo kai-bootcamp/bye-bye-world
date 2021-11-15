@@ -18,6 +18,7 @@ enum UpdateHomePage {
   connectButton,
   image,
   tokenSales,
+  page,
 }
 
 class HomeController extends GetxController {
@@ -32,23 +33,30 @@ class HomeController extends GetxController {
     super.onInit();
   }
 
-  bool get isConnected => _connectProviderUseCase.isConnected;
+  bool get isConnectedTotal =>
+      _connectProviderUseCase.isConnected &&
+      !_connectProviderUseCase.isWrongConnect;
+  bool get isDisconnect => !_connectProviderUseCase.isConnected;
+
+  bool get isWrongConnected =>
+      _connectProviderUseCase.isWrongConnect &&
+      _connectProviderUseCase.isConnected;
 
   List<TokenSaleEntity> get tokenSales => _poolSaleTokenUseCase.pool.tokenSales;
 
   Future<void> handleOnTapConnectWalletButton() async {
     await _connectProviderUseCase.connectWallet();
-    if (isConnected) {
+    if (isConnectedTotal) {
       update([UpdateHomePage.connectButton]);
     }
   }
 
   void handleOnTapSaleYourTokenButton() async {
-    if (isConnected) {
+    if (isConnectedTotal) {
       Get.dialog(FormCreateTokenSaleWidget());
     } else {
       await handleOnTapConnectWalletButton();
-      if (isConnected) {
+      if (isConnectedTotal) {
         Get.dialog(FormCreateTokenSaleWidget());
       } else {}
     }
@@ -59,11 +67,11 @@ class HomeController extends GetxController {
     TokenEntity tokenBase,
     TokenEntity tokenSale,
   ) async {
-    if (isConnected) {
+    if (isConnectedTotal) {
       Get.dialog(FormBuyTokenSaleWidget(tokenSalePair, tokenBase, tokenSale));
     } else {
       await handleOnTapConnectWalletButton();
-      if (isConnected) {
+      if (isConnectedTotal) {
         Get.dialog(FormBuyTokenSaleWidget(tokenSalePair, tokenBase, tokenSale));
       } else {}
     }
@@ -142,11 +150,11 @@ class HomeController extends GetxController {
   }
 
   Future<void> handleBuyButtonOntap() async {
-    if (isConnected) {
+    if (isConnectedTotal) {
       Get.dialog(FormCreateTokenSaleWidget());
     } else {
       await handleOnTapConnectWalletButton();
-      if (isConnected) {
+      if (isConnectedTotal) {
         Get.dialog(FormCreateTokenSaleWidget());
       } else {}
     }
@@ -186,5 +194,17 @@ class HomeController extends GetxController {
     } else {
       return null;
     }
+  }
+
+  void updateConnected(bool isConnected, bool isWrongConnected) async {
+    _connectProviderUseCase.updateConnect(isConnected, isWrongConnected);
+    try {
+      await _poolSaleTokenUseCase.getTokenSaleOfPool();
+    } catch (exp) {
+      _poolSaleTokenUseCase.pool
+        ..tokenSales = []
+        ..tokens = [];
+    }
+    update([UpdateHomePage.page]);
   }
 }

@@ -22,46 +22,56 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Text(
-          "BYE BYE WORLD",
-          style: AppTextStyle.appBarTitle(context),
-        ),
-        actions: [
-          ButtonBase(
-            onTap: controller.handleOnTapSaleYourTokenButton,
-            title: "Sale Your Token",
-          ),
-          GetBuilder<HomeController>(
-              id: UpdateHomePage.connectButton,
-              builder: (_) {
-                return ButtonBase(
-                  onTap: _.handleOnTapConnectWalletButton,
-                  title: _.isConnected ? "Connected" : "Connect Wallet",
-                );
-              })
-        ],
-      ),
-      body: SingleChildScrollView(
-        child: GetBuilder<HomeController>(
-            id: UpdateHomePage.tokenSales,
-            builder: (_) {
-              return Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(32.0),
-                  child: Wrap(
-                      spacing: 32.0,
-                      runSpacing: 32.0,
-                      children: _.tokenSales
-                          .map((tokenSale) => _TokenSaleWidget(tokenSale))
-                          .toList()),
+    return GetBuilder<HomeController>(
+        id: UpdateHomePage.page,
+        builder: (_) {
+          return Scaffold(
+            appBar: AppBar(
+              centerTitle: false,
+              title: Text(
+                "BYE BYE WORLD",
+                style: AppTextStyle.appBarTitle(context),
+              ),
+              actions: [
+                ButtonBase(
+                  onTap: controller.handleOnTapSaleYourTokenButton,
+                  title: "Sale Your Token",
                 ),
-              );
-            }),
-      ),
-    );
+                GetBuilder<HomeController>(
+                    id: UpdateHomePage.connectButton,
+                    builder: (_) {
+                      return ButtonBase(
+                        onTap: _.handleOnTapConnectWalletButton,
+                        title: _.isConnectedTotal
+                            ? "Connected"
+                            : _.isDisconnect
+                                ? "Connect Wallet"
+                                : _.isWrongConnected
+                                    ? "Wrong Network"
+                                    : "Unknow",
+                      );
+                    })
+              ],
+            ),
+            body: SingleChildScrollView(
+              child: GetBuilder<HomeController>(
+                  id: UpdateHomePage.tokenSales,
+                  builder: (_) {
+                    return Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Wrap(
+                            spacing: 32.0,
+                            runSpacing: 32.0,
+                            children: _.tokenSales
+                                .map((tokenSale) => _TokenSaleWidget(tokenSale))
+                                .toList()),
+                      ),
+                    );
+                  }),
+            ),
+          );
+        });
   }
 }
 
@@ -105,6 +115,7 @@ class _TokenSaleWidget extends StatelessWidget {
                         ? Image.network(tokenSale.getIpfs, fit: BoxFit.fill)
                         : Text(
                             "Waitting!",
+                            textAlign: TextAlign.center,
                             style: AppTextStyle.button(context),
                           ),
                   ),
@@ -180,12 +191,14 @@ class _TokenSaleWidget extends StatelessWidget {
                   ),
                   ButtonBase(
                     onTap: () {
-                      if (tokenBase != null && tokenSale != null) {
+                      if (tokenBase != null &&
+                          tokenSale != null &&
+                          tokenSalePair.isActiveSale) {
                         _.handleOnTapBuyTokenButton(
                             tokenSalePair, tokenBase, tokenSale);
                       }
                     },
-                    title: "Buy",
+                    title: tokenSalePair.isActiveSale ? "Buy" : "Sold Out",
                   )
                 ],
               ),

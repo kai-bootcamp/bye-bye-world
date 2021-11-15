@@ -30,6 +30,8 @@ class TokenSaleEntity {
         (powDecimalBase / powDecimalSale);
   }
 
+  bool get isActiveSale => totalSale > totalSold;
+
   @override
   String toString() {
     return 'TokenSaleEntity(tokenSale: $tokenSale, tokenBase: $tokenBase, totalSale: $totalSale, totalSold: $totalSold, saleRate: $saleRate, baseRate: $baseRate, maxCap: $maxCap, minCap: $minCap, tokenId: $tokenId, isActive: $isActive)';

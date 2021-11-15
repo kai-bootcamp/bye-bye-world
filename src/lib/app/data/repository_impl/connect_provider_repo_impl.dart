@@ -6,7 +6,7 @@ class ConnectProviderRepositoryImpl implements ConnectProviderRepository {
   final Web3ConnectProvider _web3;
 
   @override
-  Future<bool> connectWithProvider() async {
+  Future<void> connectWithProvider() async {
     return await _web3.connectToMetamask();
   }
 }
