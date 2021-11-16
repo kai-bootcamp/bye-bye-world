@@ -80,74 +80,7 @@ function App() {
     //showTokenInfo();
   );
 }
-/*
-function showTokenInfo (){
-  
-  return (
-    React.createClass({
-      render: function() {
-        return (
-    
-          <div className="hover_bkgr_fricc">
-            <span className="helper" />
-            <div>
-              <div className="popupCloseButton">×</div>
-              <div className="row">
-                <div className="col-md-12 col-sm-12">
-                  <h2>IRONSAIL TOKEN PRIVATE SALE</h2>
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info">Token name:</h3>    
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info">IRONSAIL</h3>    
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info">Token Type:</h3>
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info">ERC20</h3>   
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info">Total sale: </h3>   
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info"><div className="popup_info" id="available_token">2500</div></h3>   
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info">Available:</h3>
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3> <div className="popup_info" id="available_token">var_available</div></h3>
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info">Price:</h3>
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info"><div className="popup_info" id="price_token">var_price</div></h3>
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info">Token payment:</h3>
-                </div>
-                <div className="col-md-3 col-sm-12 popup-content">
-                  <h3 className="popup_info"> Tether (USDT)</h3>
-                </div>
-                <div className="col-md-12 col-sm-12">
-                  <button type="button" className="btn section-btn smoothScroll trigger_popup_fricc" name="submit" style={{backgroundColor: 'green'}}>Buy Token</button>
-                </div>
-              </div>
-            </div>
-          </div>
-        )
-      }
-    })
-  )
-}*/
 
-//React.render(<App text= "showTokenInfo"/>, document.getElementById("app"));
 export default App;
-/*
-export function createClass(arg0: { render: () => JSX.Element; }) {
-  throw new Error('Function not implemented.');
-}*/
+
 
