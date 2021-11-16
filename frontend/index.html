@@ -1,0 +1,96 @@
+<html>
+    <head>
+        <title>KEEY vendor</title>
+        <style>
+            #form {
+                border: 1px black;
+            }
+
+        </style>
+    </head>
+    <body>
+        <button id='connectMetamaskButton'>Connect wallet</button>
+        <p id='userWallet'></p>
+        <!-- <form id="form">
+            <label>KEEY Amount</label><br>
+            <input type="text" name="amount"></form>
+            <input type="submit" value="Buy"/>
+        </form> -->
+        <div>
+            <h3>Buy KEEY</h3>
+            <input type="text" id="amount"/><br>
+            <button onclick="buy()">Buy</button>
+        </div>
+
+        <script>
+            // var Web3 = require('web3');
+            const connectMetamaskButton = document.getElementById('connectMetamaskButton')
+            const userWallet = document.getElementById('userWallet')
+            const form = document.getElementById('')
+            window.userWalletAddress = null
+
+            const web3 = new Web3('http://localhost:8545');
+            const Vendor = './vendor.json';
+
+            const vendorContract =  web3.eth.contract(Vendor, '0x9dad389C2661F462B61fF1DD84014525f7B3a02A');
+
+            // const init = async () => {
+            //     const web3 = new Web3 ('http://127.0.0.1:9545/');
+            //     const contract = await new web3.eth.Contract(Vendor, '0x9dad389C2661F462B61fF1DD84014525f7B3a02A');
+            // }
+
+            // init();
+
+            // async function formSubmit(event) {
+            //     await contract.methods.buy(window.userWalletAddress, document.getElementById("amount").value()).send(
+            //         {from: window.userWalletAddress, function (err, res) {
+            //             if (err) {
+            //             console.log("An error occured", err)
+            //             return
+            //             }
+            //             console.log("Hash of the transaction: " + res)
+            //         }}
+            //     );
+            //     event.preventDefault();
+            // }
+            //
+
+            async function buy() {
+                    await vendorContract.methods.buy(document.getElementById("amount").value()).send(
+                    {from: window.userWalletAddress, function (err, res) {
+                        if (err) {
+                        console.log("An error occured", err)
+                        return
+                        }
+                        console.log("Hash of the transaction: " + res)
+                    }}
+                );
+            }
+
+            function toggleButton() {
+                if (!window.ethereum) {
+                    connectMetamaskButton.innerText = 'Metamask is not installed'
+                    return false
+                }
+
+                connectMetamaskButton.addEventListener('click', () => {loginMetamask()});
+            }
+
+            async function loginMetamask() {
+                const accounts = await window.ethereum.request({method: 'eth_requestAccounts'})
+                if(!accounts){return}
+
+                window.userWalletAddress = accounts[0]
+                userWallet.innerText = window.userWalletAddress
+                connectMetamaskButton.style.display = 'none'
+            }
+            
+            window.addEventListener('DOMContentLoaded', (event) => {
+                toggleButton();
+                
+                
+            });
+        </script>
+    </body>
+
+</html>
