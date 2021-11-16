@@ -172,20 +172,26 @@ class _TokenSaleWidget extends StatelessWidget {
                   ),
                   _Information(
                       title: "Max cap: ",
-                      detail: (tokenSalePair.maxCap *
-                                  tokenSalePair.saleRate /
-                                  (tokenSalePair.baseRate))
-                              .toString() +
-                          " " +
-                          (tokenSale != null ? tokenSale.symbol : "Token")),
+                      detail: tokenSale != null
+                          ? (tokenSalePair.maxCap *
+                                      (tokenSalePair.saleRate) /
+                                      (tokenSalePair.baseRate *
+                                          tokenSale.powDecimal))
+                                  .toString() +
+                              " " +
+                              tokenSale.symbol
+                          : "0 Wei"),
                   _Information(
                       title: "Min Cap: ",
-                      detail: (tokenSalePair.minCap *
-                                  tokenSalePair.saleRate /
-                                  (tokenSalePair.baseRate))
-                              .toString() +
-                          " " +
-                          (tokenSale != null ? tokenSale.symbol : "Token")),
+                      detail: tokenSale != null
+                          ? (tokenSalePair.minCap *
+                                      tokenSalePair.saleRate /
+                                      (tokenSalePair.baseRate *
+                                          tokenSale.powDecimal))
+                                  .toString() +
+                              " " +
+                              tokenSale.symbol
+                          : "0 Wei"),
                   const SizedBox(
                     height: 16.0,
                   ),
