@@ -95,10 +95,8 @@ class HomeController extends GetxController {
         totalSupply: totalSupply * BigInt.from(pow(10, decimal)),
         saleRate: BigInt.from(saleRate * pow(10, decimal)),
         baseRate: BigInt.from(baseRate * pow(10, 6)),
-        minCap: BigInt.from(_minCap * pow(10, 6) / pow(10, decimal)),
-        maxCap: BigInt.from(
-          _maxCap * pow(10, 6) / pow(10, decimal),
-        ),
+        minCap: BigInt.from(_minCap * pow(10, 6)),
+        maxCap: BigInt.from(_maxCap * pow(10, 6)),
       );
       await _poolSaleTokenUseCase.getTokenSaleOfPool();
       update([UpdateHomePage.tokenSales]);
