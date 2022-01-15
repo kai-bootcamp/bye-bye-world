@@ -1,3 +1,4 @@
+//Chai which is an assertions library
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 

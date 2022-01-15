@@ -4,13 +4,12 @@ pragma solidity >=0.6.6 <0.9.0;
 
 import "./IERC20.sol";
 import "./Owned.sol";
+contract Tether is IERC20, Owned {
 
-contract KEEYToken is IERC20, Owned {
-
-    string public constant name = "IronSail";
-    string public constant symbol = "KEEY";
+    string public constant name = "Tether";
+    string public constant symbol = "USDT";
     uint8 public constant decimals = 18;
-    uint256 totalSupply_ = 2500;
+    uint256 totalSupply_ = 10000000000;
 
     // Table to map addresses to their balance
     mapping(address => uint256) balances;
@@ -19,10 +18,10 @@ contract KEEYToken is IERC20, Owned {
     // use the contract
     mapping(address => mapping (address => uint256)) allowed;
 
-    using SafeMathKEEY for uint256;
+    using SafeMath for uint256;
 
    constructor() {
-        totalSupply_ = 2500 * 10 ** 18;
+        totalSupply_ = 10000000000 * 10 ** 18;
         balances[msg.sender] = totalSupply_;
     }
 
@@ -83,7 +82,8 @@ contract KEEYToken is IERC20, Owned {
         return true;
     }
 }
-library SafeMathKEEY {
+
+library SafeMath {
     function sub(uint256 a, uint256 b) internal pure returns (uint256) {
       assert(b <= a);
       return a - b;
