@@ -2,15 +2,27 @@
 
 pragma solidity >=0.6.6 <0.9.0;
 
-import "./IERC20.sol";
 import "./Owned.sol";
+import "./SafeMath.sol";
+// interface IERC20 {
 
-contract KEEYToken is IERC20, Owned {
+//     function totalSupply() external view returns (uint256);
+//     function balanceOf(address account) external view returns (uint256);
+//     function allowance(address owner, address spender) external view returns (uint256);
 
-    string public constant name = "IronSail";
-    string public constant symbol = "KEEY";
-    uint8 public constant decimals = 18;
-    uint256 totalSupply_ = 2500;
+//     function transfer(address recipient, uint256 amount) external returns (bool);
+//     function approve(address spender, uint256 amount) external returns (bool);
+//     function transferFrom(address sender, address recipient, uint256 amount) external returns (bool);
+
+
+//     event Transfer(address indexed from, address indexed to, uint256 value);
+//     event Approval(address indexed owner, address indexed spender, uint256 value);
+// }
+contract Token is Owned{
+    string public name;
+    string public symbol;
+    // uint8 decimals = 18;
+    uint256 totalSupply_;
 
     // Table to map addresses to their balance
     mapping(address => uint256) balances;
@@ -19,22 +31,27 @@ contract KEEYToken is IERC20, Owned {
     // use the contract
     mapping(address => mapping (address => uint256)) allowed;
 
-    using SafeMathKEEY for uint256;
+    using SafeMath for uint256;
 
-   constructor() {
-        totalSupply_ = 2500 * 10 ** 18;
+    constructor(uint256 _totalSupply, string memory _name, string memory _symbol) {
+        totalSupply_ = _totalSupply;
+        name = _name;
+        symbol = _symbol;
+        // decimals = 18;
         balances[msg.sender] = totalSupply_;
+        owner = msg.sender;
     }
 
-    function totalSupply() public override view returns (uint256) {
+    function totalSupply() public  view returns (uint256) {
     return totalSupply_;
     }
 
-    function balanceOf(address tokenOwner) public override view returns (uint256) {
+    function balanceOf(address tokenOwner) public  view returns (uint256) {
         return balances[tokenOwner];
     }
 
-    function transfer(address receiver, uint256 numTokens) public override returns (bool) {
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    function transfer(address receiver, uint256 numTokens) public  returns (bool) {
         require(numTokens <= balances[msg.sender]);
         // transfers the value if
         // balance of sender is
@@ -47,8 +64,8 @@ contract KEEYToken is IERC20, Owned {
         return true;
     }
 
-
-    function approve(address delegate, uint256 numTokens) public override returns (bool) {
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+    function approve(address delegate, uint256 numTokens) public  returns (bool) {
         // If the address is allowed
         // to spend from this contract
         allowed[msg.sender][delegate] = numTokens;
@@ -59,7 +76,7 @@ contract KEEYToken is IERC20, Owned {
         return true;
     }
 
-    function allowance(address owner, address delegate) public override view returns (uint) {
+    function allowance(address owner, address delegate) public  view returns (uint256) {
         return allowed[owner][delegate];
     }
 
@@ -70,7 +87,7 @@ contract KEEYToken is IERC20, Owned {
     "deposit" to a contract address
     and/or to charge fees in sub-currencies;*/
 
-    function transferFrom(address owner, address buyer, uint256 numTokens) public override returns (bool) {
+    function transferFrom(address owner, address buyer, uint256 numTokens) public  returns (bool) {
         require(numTokens <= balances[owner]);
         require(numTokens <= allowed[owner][msg.sender]);
 
@@ -81,17 +98,5 @@ contract KEEYToken is IERC20, Owned {
         // any logic that is listening
         emit Transfer(owner, buyer, numTokens);
         return true;
-    }
-}
-library SafeMathKEEY {
-    function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-      assert(b <= a);
-      return a - b;
-    }
-
-    function add(uint256 a, uint256 b) internal pure returns (uint256) {
-      uint256 c = a + b;
-      assert(c >= a);
-      return c;
     }
 }

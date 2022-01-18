@@ -1,3 +1,4 @@
+const { BigNumber } = require("ethers");
 const hre = require("hardhat");
 const decimal = 1000000000000000000;
 async function main() {
@@ -10,34 +11,27 @@ async function main() {
   console.log("usdtOwner address:", usdtOwner.address);
   console.log("usdtOwner balance:", (await usdtOwner.getBalance()).toString());
 
-  
-  // console.log("testOwner address:", testOwner.address);
-  // console.log("testtOwner balance:", (await testOwner.getBalance()).toString());
-
-  //for localhost test
-  // const KEEYToken = await hre.ethers.getContractFactory("KEEYToken");
-  // const deployKEEYToken = await KEEYToken.deploy();
-
-  // await deployKEEYToken.deployed();
-  // console.log("KEEY deployed to:", deployKEEYToken.address);
-
   //for rinkeby test
-  const FactoryKEEY = await hre.ethers.getContractFactory("KEEYToken");
-  factoryKEEY = await FactoryKEEY.connect(keeyOwner).deploy();
+  const FactoryToken = await hre.ethers.getContractFactory("Token");
+  factoryKEEY = await FactoryToken.connect(keeyOwner).deploy(2500, "IronSail", "KEEY");
   console.log("KEEY deployed to:", factoryKEEY.address);
 
-  const FactoryUSDT = await hre.ethers.getContractFactory("Tether");
-  factoryUSDT = await FactoryUSDT.connect(usdtOwner).deploy();
+  
+  factoryUSDT = await FactoryToken.connect(usdtOwner).deploy(100000000, "Tether", "USDT");
   console.log("USDT deployed to:", factoryUSDT.address);
 
-  const FactoryBuy = await hre.ethers.getContractFactory("TokenSwap");
-  factoryBuy = await FactoryBuy.connect(usdtOwner).deploy(factoryUSDT.address, usdtOwner.address, factoryKEEY.address, keeyOwner.address);
+  const FactoryBuy = await hre.ethers.getContractFactory("SellKEEYToken");
+  factoryBuy = await FactoryBuy.connect(keeyOwner).deploy(factoryKEEY.address, factoryUSDT.address, 10000);
   console.log("Buy contract deployed to:", factoryBuy.address);
   
-  await  factoryKEEY.connect(keeyOwner).approve(factoryBuy.address, ethers.utils.parseUnits("2500", 18));
-  await  factoryUSDT.connect(usdtOwner).approve(factoryBuy.address, ethers.utils.parseUnits("10000000000", 18));
-  console.log("USDT allowance: ", await factoryUSDT.allowance(usdtOwner.address, factoryBuy.address));
-  //console.log("Test approve: ", await factoryKEEY.connect(keeyOwner).approve(factoryBuy.address, 2500));
+  
+  // console.log(await factoryKEEY.connect(keeyOwner).balanceOf(keeyOwner));
+  await factoryKEEY.connect(keeyOwner).approve(factoryBuy.address,  2500);
+  await factoryBuy.connect(keeyOwner).initFund();
+  console.log("init fund successful");
+  // for big num
+  //await factoryKEEY.connect(keeyOwner).approve(factoryBuy.address, ethers.utils.parseUnits("2500", 18));
+  //console.log("KEEY allowance: ", await factoryKEEY.allowance(keeyOwner.address, factoryBuy.address));
 }
 
 // We recommend this pattern to be able to use async/await everywhere
