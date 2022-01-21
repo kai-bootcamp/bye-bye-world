@@ -12,7 +12,7 @@ contract Owned {
     require(msg.sender == owner);
     _;
   }
-
+  //transfer contract to another account
   function transferOwnership(address newOwner) public onlyOwner {
     owner = newOwner;
   }

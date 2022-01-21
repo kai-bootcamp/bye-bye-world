@@ -27,7 +27,7 @@ async function main() {
   
   // console.log(await factoryKEEY.connect(keeyOwner).balanceOf(keeyOwner));
   await factoryKEEY.connect(keeyOwner).approve(factoryBuy.address,  2500);
-  await factoryBuy.connect(keeyOwner).initFund();
+  await factoryBuy.connect(keeyOwner).initFund(2500);
   console.log("init fund successful");
   // for big num
   //await factoryKEEY.connect(keeyOwner).approve(factoryBuy.address, ethers.utils.parseUnits("2500", 18));

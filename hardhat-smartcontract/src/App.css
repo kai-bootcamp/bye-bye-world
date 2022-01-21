@@ -71,6 +71,18 @@
   background: #435f7a;
 }
 
+#paragraph {
+  font-weight: bold;
+  border: none;
+  /* width: 50px; */
+  /* padding: 5px 5px; */
+  /* cursor: pointer; */
+  background: #002c88;
+  color: lavender;
+  height: 30px;
+  border-radius: 10px;
+}
+
 #input{
   
   font-family: 'proxima-nova', 'Source Sans Pro', sans-serif;
@@ -85,4 +97,5 @@
 
 #address{
   color: #cceb34;
+  font-weight: 900;
 }

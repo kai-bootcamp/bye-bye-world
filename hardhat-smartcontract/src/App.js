@@ -4,18 +4,13 @@ import SellKEEYToken from './abi-contracts/SellKEEYToken.json';
 
 import { ethers, BigNumber } from 'ethers';
 import { useEffect, useState } from 'react';
-const buyTokenADDRESS = '0x7EB92111aE413720e45f981cd1013305155C3E8C';
-const TetherADDRESS = '0x856d3BFE31e6E689d80A1deFe1b6592Cb76F0a44';
-const KEEYADDRESS = '0x4E2BEfF136AF63139203bd2593b6699Db3F4D21A';
+const buyTokenADDRESS = '0x60299126e798510Bd36658e0f3754311e9eF2A5B';
+const TetherADDRESS = '0xB08c08bA46B2676F4525D93755a74226aBD30791';
+const KEEYADDRESS = '0x0D8d76182AE454Ca2B98AC26515d4EB791c4804B';
 
 const decimal = 1000000000000000000;
 
 function App() {
-    /*Connect to your account*/
-
-    // A Web3Provider wraps a standard Web3 provider, which is
-    // what MetaMask injects as window.ethereum into each page
-    // const provider = new ethers.providers.Web3Provider(window.ethereum)
     const [accounts, setAccounts] = useState([]);
     const [buyAmount, setBuyAmount] = useState(0);
     const [selectedAddress, setSelectedAddress] = useState('');
@@ -23,53 +18,48 @@ function App() {
     const [KEEYBalance, setKEEYBalance] = useState("0");
     const [USDTNeeded, setUSDTNeeded] = useState("0");
     const [newBalance, setNewBalance] = useState(0);
-    async function balanceUSDT(){
+
+    const [usdtContract, setUsdtContract] = useState();
+    const [keeyContract, setKeeyContract] = useState();
+    async function getContract(){
       if (window.ethereum){
         const provider = new ethers.providers.Web3Provider(window.ethereum);
         const signer = provider.getSigner();
         // console.log(signer);
-        const contract = new ethers.Contract(
-          // SwapADDRESS,
-          // TokenSwap.abi,
+        const contractUSDT = new ethers.Contract(
           TetherADDRESS,
           Token.abi,
           signer
         );
-        try{
-          const response = await contract.balanceOf(selectedAddress); 
-          setUSDTBalance(response.toString());         
-          console.log("Block ID:", await provider.getBlockNumber());
-          console.log("USDT: ", response.toString());
-        }
-        catch(err){
-          console.log("error: ", err);
-        }
-      }
-    }
-
-    async function balanceKEEY(){
-      if (window.ethereum){
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        // console.log(signer);
-        const contract = new ethers.Contract(
-          // SwapADDRESS,
-          // TokenSwap.abi,
+        setUsdtContract(contractUSDT);
+        const contractKEEY = new ethers.Contract(
           KEEYADDRESS,
           Token.abi,
           signer
         );
-        try{
-          const response = await contract.balanceOf(selectedAddress); 
-          setKEEYBalance(response.toString());         
-          console.log("Block ID:", await provider.getBlockNumber());
-          console.log("KEEY: ", response.toString());
-        }
-        catch(err){
-          console.log("error: ", err);
-        }
+        setKeeyContract(contractKEEY);
       }
     }
+
+    async function updateBalanceToken(){
+      try{
+        var responseUSDT = await usdtContract.balanceOf(selectedAddress); 
+        setUSDTBalance(responseUSDT.toString());         
+        console.log("USDT: ", responseUSDT.toString());
+
+        var responseKEEY = await keeyContract.balanceOf(selectedAddress); 
+        setKEEYBalance(responseKEEY.toString());     
+        console.log("KEEY: ", responseKEEY.toString());
+      }
+      catch(err){
+        console.log("error: ", err);
+      }
+    }
+    /*Connect to your account*/
+
+    // A Web3Provider wraps a standard Web3 provider, which is
+    // what MetaMask injects as window.ethereum into each page
+    // const provider = new ethers.providers.Web3Provider(window.ethereum)
     //Metamask can return multiple accounts, so we'll use the first one
     async function ConnectAccounts(){
       if (window.ethereum) {
@@ -89,12 +79,12 @@ function App() {
 
 
     useEffect(() => {
-     ConnectAccounts();  
+      getContract();
+      ConnectAccounts();  
     }, []);
     useEffect(() => {
-      balanceKEEY();
-      balanceUSDT();
-    }, [selectedAddress, newBalance]);
+      updateBalanceToken();
+    }, [selectedAddress]);
     /*Buy KEEY*/
     async function handleBuy(){
       if (window.ethereum){
@@ -109,17 +99,18 @@ function App() {
           // Tether.abi,
           signer
         );
-
+        
         try{
           const response = await userContract.approve(buyTokenADDRESS, USDTBalance);
           console.log("allowance: ", await userContract.allowance(selectedAddress, buyTokenADDRESS));
-          console.log("Block ID:", await provider.getBlockNumber());
-          
+          // console.log("Block ID:", await provider.getBlockNumber());
+          // console.log("response: ", response);
         }
         catch(err){
           console.log("error: ", err);
+          return;
         }
-
+        
 
         //Buy
         const buyContract = new ethers.Contract(
@@ -146,8 +137,8 @@ function App() {
         catch(err){
           console.log("error: ", err);
         }
-        const updateBalace = 1 - newBalance;
-        setNewBalance(updateBalace);
+        const updateBalance = 1 - newBalance;
+        setNewBalance(updateBalance);
       }
     }
   
@@ -163,9 +154,9 @@ function App() {
         <div className="sidepanel">
         
         <p>This is your Address: <a id = "address" href={`https://rinkeby.etherscan.io/address/${selectedAddress}`}>{selectedAddress}</a></p>
-        <button id='button'>
-              Số USDT cần trả: {USDTNeeded}  
-            </button>
+        <p id = "paragraph">
+          Số USDT cần trả: {USDTNeeded}  
+        </p>
         {accounts.length && (
           <div>
             <button id='button' onClick={() => handleBuy()}>
@@ -182,13 +173,14 @@ function App() {
             
           </div>
         )}
-        <div> FOR TESTING</div>
+        <div id = "address"> Information</div>
         <div>This is Buy Address Contract: {buyTokenADDRESS}</div>
         <div>This is USDT contract: {TetherADDRESS}</div>
-
-        <p><button id='button' onClick={balanceUSDT}>Balance Your USDT: </button> {USDTBalance}</p>
+        <p id ="paragraph">Your USDT: {USDTBalance}</p>
+        {/* <p><button id='button' onClick={updateBalanceToken}> Your USDT: </button> {USDTBalance}</p> */}
         <div>This is KEEY contract: {KEEYADDRESS}</div>
-        <div> <button id='button' onClick={balanceKEEY}>Balance Your KEEY: </button> {KEEYBalance}</div>
+        <p id = "paragraph">Your KEEY: {KEEYBalance}</p>
+        <div> <button id='button' onClick={updateBalanceToken}> Get Balance </button></div>
         </div>
       </center>
     </div>

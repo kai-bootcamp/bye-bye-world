@@ -25,3 +25,4 @@ npx hardhat help
 	- Replace TetherADDRESS, KEEYADDRESS by USDT, KEEY address from deploy contract.
 
 - Start frontend
+- Public Host: http://sell-keey.s3-website-ap-southeast-1.amazonaws.com/ 
