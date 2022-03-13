@@ -1,11 +1,9 @@
-// const Migrations = artifacts.require("Migrations");
-const KeeyToken = artifacts.require("KeeyToken");
+
+// const KeeyToken = artifacts.require("KeeyToken");
 const KeeyTokenSale = artifacts.require("KeeyTokenSale");
+// const USDTToken = artifacts.require("USDTToken");
 
 module.exports = function (deployer) {
-  // deployer.deploy(Migrations);
-  // deployer.deploy(KeeyToken).then(() => {
-  //   deployer.deploy(KeeyTokenSale, KeeyToken.address);
-  // })
-  deployer.deploy(KeeyTokenSale, "0xC74F4f35D04dfEbB746Ddac6f278b4ceE51805CF");
+  // deployer.deploy(USDTToken);
+  deployer.deploy(KeeyTokenSale, "0xe755a2048Fb976FA58A668D6f0dC23B5B38a9e08", "0x12BbFA5fc2677529Ef05024dD6584ad409316d9b");
 };
