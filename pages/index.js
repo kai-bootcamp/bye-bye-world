@@ -1,22 +1,22 @@
 import Head from "next/head";
 import Image from "next/image";
-import { load, loadInfoAccount } from "../lib/utils";
+import { load, loadContract, loadInfoAccount } from "../lib/utils";
 import styles from "../styles/Home.module.css";
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
-import { DECIMALS, TOTAL_KEEY_SALE } from "../lib/contants";
+import { DECIMALS, RATE, SELLER_ADDRESS, TOTAL_KEEY_SALE } from "../lib/contants";
+
 
 export default function Home() {
-  const [account, setAccount] = useState(null);
   const [contractKeey, setContractKeey] = useState(null);
   const [contractKTS, setContractKTS] = useState(null);
   const [contractUSDT, setContractUSDT] = useState(null);
-  const [rate, setRate] = useState(0);
+  const [account, setAccount] = useState(null);
   const [fundsUSDT, setFundsUSDT] = useState(-1);
   const [myKeey, setMyKeey] = useState(-1);
+  const [transactionCount, setTransactionCount] = useState(-1);
   const [transactions, setTransactions] = useState(undefined);
   const [value, setValue] = useState(0);
-  const [sellerAddress, setSellerAddress] = useState("");
   const [balanceKeeyOfSale, setBalanceKeeyOfSale] = useState(-1);
   const [waiting, setWaiting] = useState(false);
 
@@ -26,15 +26,11 @@ export default function Home() {
 
   const isLoading = () => {
     return (
-      account == null ||
-      contractKTS == null ||
-      contractKeey == null ||
-      contractUSDT == null ||
-      rate == 0 ||
+      account == null || contractKeey == null || contractKTS == null || contractUSDT == null ||
       fundsUSDT < 0 ||
       myKeey < 0 ||
       transactions === undefined ||
-      sellerAddress === "" ||
+      transactionCount == -1 ||
       balanceKeeyOfSale < 0
     );
   };
@@ -42,15 +38,14 @@ export default function Home() {
   const handleUseEffect = async () => {
     load().then((data) => {
       console.log(data);
-      setAccount(data.account);
-      setContractKTS(data.contractKTS);
       setContractKeey(data.contractKeey);
+      setContractKTS(data.contractKTS);
       setContractUSDT(data.contractUSDT);
-      setRate(data.rate);
+      setAccount(data.account);
       setFundsUSDT(data.fundsUSDT);
       setMyKeey(data.myKeey);
+      setTransactionCount(data.transactionCount);
       setTransactions(data.transactions);
-      setSellerAddress(data.sellerAddress);
       setBalanceKeeyOfSale(data.balanceKeeyOfSale);
 
       window.ethereum.on("accountsChanged", async (accounts) => {
@@ -62,6 +57,7 @@ export default function Home() {
   };
 
   const handleBuyToken = async () => {
+
     if (value <= 0) {
       alert("Value must not less than or equal to 0!");
       return;
@@ -74,19 +70,37 @@ export default function Home() {
       value: 0,
       gasLimit: 500000,
     });
-    contractKTS.on("Sell", (value) => {
-      console.log("Sell success: ", value);
+
+    contractKTS.on("Sell", (data) => {
+      console.log("Sell success: ", data);
+      
+      const newFunds = Number(fundsUSDT) + Number(value)*Number(RATE); 
+      const newMyKeey = Number(myKeey) + Number(value);
+      const newBalance =  balanceKeeyOfSale - value;
+      const newTransaction = [{
+        buyer: account,
+        amount: value
+      }, ...transactions];
+      
+      while(newTransaction.length > 10) {
+        newTransaction.pop();
+      }
+      
       alert("Buy token successfully");
       setWaiting(false);
-      handleUseEffect();
+      setFundsUSDT(newFunds);
+      setMyKeey(newMyKeey);
+      setBalanceKeeyOfSale(newBalance);
+      setTransactions(newTransaction);
+
     });
   };
 
   const approveUSDT = async () => {
     const approveAmount = ethers.BigNumber.from(BigInt(DECIMALS)).mul(
-      rate * value
+      RATE * value
     );
-    await contractUSDT.approve(sellerAddress, approveAmount, {
+    await contractUSDT.approve(SELLER_ADDRESS, approveAmount, {
       from: account,
       value: 0,
       gasLimit: 500000,
@@ -108,7 +122,7 @@ export default function Home() {
 
   const handleEndSale = async () => {
     if(balanceKeeyOfSale === 0) {
-      alert("Token Keey was sold all!");
+      alert("Token KEEY was sold all!");
       return;
     }
     setWaiting(true);
@@ -118,9 +132,14 @@ export default function Home() {
       gasLimit: 500000,
     });
     contractKTS.on("EndSale", (amount) => {
-      alert(`Get ${amount/DECIMALS} Keey back to seller address successfully!`);
+      const amountNumber = amount/DECIMALS; 
+      alert(`Get ${amountNumber} KEEY back to seller address successfully!`);
       setWaiting(false);
-      handleUseEffect();
+      setBalanceKeeyOfSale(0);
+
+      if(account === SELLER_ADDRESS) {
+        setMyKeey(myKeey + amountNumber);
+      }
     });
   }
 
@@ -131,16 +150,16 @@ export default function Home() {
   return (
     <div className={styles.container}>
       <Head>
-        <title>ICO Keey</title>
-        <meta name="description" content="Keey Token ICO" />
+        <title>ICO KEEY</title>
+        <meta name="description" content="KEEY Token ICO" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
       <main className={styles.main}>
         <h1 className={styles.title}>
           Welcome to{" "}
-          <a href="https://kovan.etherscan.io/token/0xe755a2048fb976fa58a668d6f0dc23b5b38a9e08">
-            Keey
+          <a href={`https://kovan.etherscan.io/token/${contractKeey ? contractKeey.address: '0x20efB4D92cAe8FfD89C138Ba54E908B9C6037d49'}`}>
+            KEEY
           </a>{" "}
           ICO
         </h1>
@@ -149,12 +168,12 @@ export default function Home() {
         ) : (
           <>
             <p className={styles.description}>
-              1 Keey = {rate} USDT {"  "}
-              {account.toLowerCase() === sellerAddress.toLowerCase() && <button className={`${styles.button} ${styles.button_secondary}`} onClick={handleEndSale}>End Sale</button>}
+              1 KEEY = {RATE} USDT {"  "}
+              {account.toLowerCase() === SELLER_ADDRESS.toLowerCase() && <button className={`${styles.button} ${styles.button_secondary}`} onClick={handleEndSale}>End Sale</button>}
             </p>
             <div className={styles.progress_wrapper}>
               <p className={styles.progress_content}>
-                {TOTAL_KEEY_SALE - balanceKeeyOfSale}/{TOTAL_KEEY_SALE} Keey
+                {TOTAL_KEEY_SALE - balanceKeeyOfSale}/{TOTAL_KEEY_SALE} KEEY
               </p>
               <div
                 className={styles.progress_percent}
@@ -169,13 +188,13 @@ export default function Home() {
                   <div>
                     <input
                       type="number"
-                      placeholder="Amount Keey"
+                      placeholder="Amount KEEY"
                       className={styles.input}
                       value={value}
                       onChange={handleInput}
                     />
                     <button className={styles.button} onClick={handleBuyToken}>
-                      Buy Keey
+                      Buy KEEY
                     </button>
                   </div>
                   <p style={{ fontSize: "1rem" }}>My Address: {account}</p>
@@ -186,9 +205,9 @@ export default function Home() {
             <div className={styles.grid}>
               <div className={styles.card}>
                 <h2>Information &rarr;</h2>
-                <p>Transactions: {transactions.length}</p>
+                <p>Transactions: {transactionCount}</p>
                 <p>Funds: {fundsUSDT} USDT</p>
-                <p>My Keey: {myKeey} KEEY</p>
+                <p>My KEEY: {myKeey} KEEY</p>
               </div>
 
               <div className={styles.card}>
