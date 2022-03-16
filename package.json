@@ -12,6 +12,7 @@
     "@chainlink/contracts": "^0.4.0",
     "@metamask/detect-provider": "^1.2.0",
     "@openzeppelin/contracts": "^4.5.0",
+    "@sentry/browser": "^6.18.2",
     "@truffle/contract": "^4.5.0",
     "@truffle/hdwallet-provider": "^2.0.4",
     "next": "12.1.0",

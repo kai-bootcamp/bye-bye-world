@@ -15,6 +15,7 @@ contract KeeyTokenSale {
     uint256 public transactionCount;
 
     event Sell(address _buyer, uint256 _amount);
+    event EndSale(uint256 _amount);
 
     struct Transaction {
         address buyer;
@@ -36,17 +37,28 @@ contract KeeyTokenSale {
         // Check that the sale contract provides the enough KEEY to make this transaction
         require(token.balanceOf(address(this)) >= _amount, 'Not enough KEEY to send');
 
-        console.log("Amount :", uint256(tokenPriceUSD * _amount));
+        require(usdtToken.allowance(buyer, admin) >= uint256(tokenPriceUSD * _amount), 'Not enough allowance');
         // Make sure transfer USDT from buyer to ICO SMC successfully
         require(usdtToken.transferFrom(buyer, admin, uint256(tokenPriceUSD * _amount)),'Transfer USDT from buyer failed');
-        console.log("Have no idea");
+        console.log("Transfer USDT from Buyer to Admin successfully");
         // Make sure token transfer successfully
         require(token.transfer(buyer, _amount), 'Transfer token failed');
+        console.log("Transfer token from Smc Sale to Buyer successfully");
 
         tokensSold += _amount;
         transaction[transactionCount] = Transaction(buyer, _amount);
         transactionCount++;
 
         emit Sell(buyer, _amount);
+    }
+
+    function endSale() public {
+        require(msg.sender == admin);
+        // Return the tokens that were left inside of the sale contract
+        uint256 amount = token.balanceOf(address(this));
+        require(token.transfer(admin, amount));
+
+        emit EndSale(amount);
+        
     }
 }

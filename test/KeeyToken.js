@@ -15,26 +15,19 @@ describe("Smart Contract for Keey, USDT, Sale", () => {
         KTS = await ethers.getContractFactory("KeeyTokenSale");
         keeyTokenSale = await KTS.deploy(keeyToken.address, usdtToken.address);
         [owner, buyer ] = await ethers.getSigners();
+
+        //Transfer token to smc sale
+        await keeyToken.transfer(keeyTokenSale.address, BigInt(1000*DECIMALS));
+        await usdtToken.transfer(buyer.address, BigInt(100000*DECIMALS));
+        
+        await usdtToken.connect(buyer).approve(owner.address, BigInt(2*KEEYPERUSDT*DECIMALS));
+        
+        await keeyTokenSale.connect(owner).buyToken(BigInt(2*DECIMALS), buyer.address);
         
     });
 
     describe("Sale Smart Contract", () => {
         it("Should buy token properly", async () => {
-            console.log("Before run test");
-            console.log("Owner: %s, Sale: %s, Buyer: %s", owner.address, keeyTokenSale.address, buyer.address);
-
-            //Transfer token to smc sale
-            await keeyToken.transfer(keeyTokenSale.address, BigInt(1000*DECIMALS));
-            await usdtToken.transfer(buyer.address, BigInt(100000*DECIMALS));
-            
-            await usdtToken.connect(buyer).approve(owner.address, BigInt(2*KEEYPERUSDT*DECIMALS));
-
-            const allowance = await usdtToken.allowance(buyer.address, owner.address);
-            console.log("Allowance: ", allowance);
-            await usdtToken.connect(owner).transferFrom(buyer.address, owner.address, BigInt(2*KEEYPERUSDT*DECIMALS));
-            // await keeyTokenSale.connect(owner).buyToken(BigInt(2*DECIMALS), buyer.address);
-            await keeyToken.transfer(buyer.address, BigInt(2*DECIMALS));
-
             const balanceUSDTOfBuyerBig = await usdtToken.balanceOf(buyer.address);
             const balanceUSDTOfBuyer = Number(balanceUSDTOfBuyerBig/DECIMALS);
 
@@ -43,6 +36,20 @@ describe("Smart Contract for Keey, USDT, Sale", () => {
 
             expect(80000).to.equal(balanceUSDTOfBuyer);
             expect(2).to.equal(balanceKeeyOfBuyer);
+        });
+
+        it("Should move rest of Keey from SMC Sale to Seller when trigger event EndSale", async () => {
+            await keeyTokenSale.connect(owner).endSale();
+            
+            const balanceOfKTSBig = await keeyToken.balanceOf(keeyTokenSale.address);
+            const balanceOfKTS = Number(balanceOfKTSBig/DECIMALS);
+
+            const balanceOfOwnerBig = await keeyToken.balanceOf(owner.address);
+            const balanceOfOwner = Number(balanceOfOwnerBig/DECIMALS);
+
+            expect(0).to.equal(balanceOfKTS);
+            expect(2498).to.equal(balanceOfOwner);
+
         });
     });
 });
