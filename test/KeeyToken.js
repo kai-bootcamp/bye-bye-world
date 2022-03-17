@@ -20,9 +20,9 @@ describe("Smart Contract for Keey, USDT, Sale", () => {
         await keeyToken.transfer(keeyTokenSale.address, BigInt(1000*DECIMALS));
         await usdtToken.transfer(buyer.address, BigInt(100000*DECIMALS));
         
-        await usdtToken.connect(buyer).approve(owner.address, BigInt(2*KEEYPERUSDT*DECIMALS));
+        await usdtToken.connect(buyer).approve(keeyTokenSale.address, BigInt(2*KEEYPERUSDT*DECIMALS));
         
-        await keeyTokenSale.connect(owner).buyToken(BigInt(2*DECIMALS), buyer.address);
+        await keeyTokenSale.connect(buyer).buyToken(BigInt(2*DECIMALS));
         
     });
 

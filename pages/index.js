@@ -65,7 +65,7 @@ export default function Home() {
     setWaiting(true);
     await approveUSDT();
     const amountToken = ethers.BigNumber.from(BigInt(DECIMALS)).mul(value);
-    await contractKTS.buyToken(amountToken, account, {
+    await contractKTS.buyToken(amountToken, {
       from: account,
       value: 0,
       gasLimit: 500000,
@@ -77,6 +77,8 @@ export default function Home() {
       const newFunds = Number(fundsUSDT) + Number(value)*Number(RATE); 
       const newMyKeey = Number(myKeey) + Number(value);
       const newBalance =  balanceKeeyOfSale - value;
+      const newTransactionCount = ++transactionCount;
+      console.log({newTransactionCount, transactionCount});
       const newTransaction = [{
         buyer: account,
         amount: value
@@ -91,6 +93,7 @@ export default function Home() {
       setFundsUSDT(newFunds);
       setMyKeey(newMyKeey);
       setBalanceKeeyOfSale(newBalance);
+      setTransactionCount(newTransactionCount);
       setTransactions(newTransaction);
 
     });
@@ -100,15 +103,10 @@ export default function Home() {
     const approveAmount = ethers.BigNumber.from(BigInt(DECIMALS)).mul(
       RATE * value
     );
-    await contractUSDT.approve(SELLER_ADDRESS, approveAmount, {
+    await contractUSDT.approve(contractKTS.address, approveAmount, {
       from: account,
       value: 0,
       gasLimit: 500000,
-    });
-
-    contractUSDT.on("Approval", async (owner, spender, amount) => {
-      console.log("Approval successfully");
-      console.log({ owner, spender, amount });
     });
   };
 
