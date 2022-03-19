@@ -100,6 +100,10 @@ module.exports = {
       }
     }
   },
+  plugins: ['truffle-plugin-verify'],
+  api_keys: {
+    etherscan: 'REX2Z74M1SUWW9K14U477HM1NCGNV6NXPS'
+  }
 
   // Truffle DB is currently disabled by default; to enable it, change enabled:
   // false to enabled: true. The default storage location can also be
