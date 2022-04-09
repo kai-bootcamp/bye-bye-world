@@ -1,8 +1,9 @@
+import { PendingActionsRounded } from '@mui/icons-material'
 import {Pet} from '../interface/nft'
 
 const uri = 'https://petshop-project.s3.ap-southeast-1.amazonaws.com/'
 
-export const getPetData = ():Pet[] => {
+export const getPetData = (petIds: number[], ownerList: string[]):Pet[] => {
   const petSize = 30
   const pets = []
   for (var i = 1; i <= petSize; i++) {
@@ -24,8 +25,16 @@ export const getPetData = ():Pet[] => {
         { trait_type: "Intel", value: 3 }
       ]
     }
-    pets.push(pet)
+
+    var index = petIds.indexOf(pet.id)
+    if(index >=0 ){
+      const owner = ownerList[index]
+      pets.push({...pet, owner})
+    }
+  
   }
+
+  console.log("pets----------", pets)
 
   return pets
 }

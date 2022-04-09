@@ -4,9 +4,12 @@ import {useRouter}  from 'next/router'
 import { getPetData } from "../data/pet"
 import { Pet } from '../interface/nft'
 
-const PetsPageContainer = () => {
 
-  const pets = getPetData()
+
+const PetsPageContainer = (props: {petIds: number[], ownerList: string[]}) => {
+
+  const {petIds, ownerList} = props
+  const pets = getPetData(petIds, ownerList)
   const router = useRouter()
   return (
     <Box margin={1}>

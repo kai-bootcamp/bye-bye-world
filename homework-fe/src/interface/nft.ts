@@ -10,4 +10,5 @@ export interface Pet {
   image: string
   description: string
   attributes: Attributes[]
+  owner?: string
 }
