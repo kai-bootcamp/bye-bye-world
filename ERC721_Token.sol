@@ -20,7 +20,7 @@ interface IERC721TokenReceiver {
 }
 
 interface IERC165 {
-    function supportsInterface(bytes4) external view returns (bool);
+    function supportsInterface(bytes4) external returns (bool);
 }
 
 contract my_ERC721_Token {
@@ -114,6 +114,8 @@ contract my_ERC721_Token {
         _balances[from]--;
         _balances[to]++;
         _owners[tokenID] = to;
+
+        approve(address(0), tokenID);
     }
 
     mapping (uint256 => address) _approved;
@@ -163,7 +165,7 @@ contract my_ERC721_Token {
 
     uint256 private _tokenCounter;
     address private _minter;
-    function _mint(address to, string memory _tokenURI) private {
+    function mint(address to, string memory _tokenURI) public {
         require(msg.sender == _minter);
         require(to != address(0));
 
