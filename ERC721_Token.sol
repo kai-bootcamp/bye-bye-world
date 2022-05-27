@@ -1,29 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-interface IERC721Token {
-    function balanceOf(address) external returns (uint256);
-    function ownerOf(uint256) external returns (address);
-    function safeTransferFrom(address, address, uint256) external;
-    function transferFrom(address, address, uint256) external;
-    function approve(address, uint256) external;
-    function getApproved(address, uint256) external returns (address);
-    function setApprovalForAll(address, bool) external;
-    function isApprovedForAll(address, address) external returns (bool);
-    function safeTransferFrom(address, address, uint256, bytes memory) external;
-}
-
-interface IERC721TokenReceiver {
+interface IERC721Receiver {
     function onERC721Received(
         address, address, uint256, bytes memory
     ) external returns (bytes4);
 }
 
-interface IERC165 {
-    function supportsInterface(bytes4) external returns (bool);
-}
-
-contract my_ERC721_Token {
+contract ERC721Token {
     string private _name;
     function name() public view returns (string memory) {
         return _name;
@@ -40,17 +24,13 @@ contract my_ERC721_Token {
         _name = name_;
         _symbol = symbol_;
 
-        supportedInterfaces[type(IERC165).interfaceId] = true;
-        supportedInterfaces[type(IERC721Token).interfaceId] = true;
-
-        _tokenCounter = 0;
+        _totalSupply = 0;
         _minter = msg.sender;
     }
 
-    mapping(address => uint256) private _balances;
     function balanceOf(address account) public view returns (uint256) {
         require(account != address(0));
-        return _balances[account];
+        return _ownedTokens[account].length;
     }
 
     mapping(uint256 => address) private _owners;
@@ -60,7 +40,7 @@ contract my_ERC721_Token {
         return account;
     }
 
-    event Transfer(address, address, uint256);
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenID);
     function isContract(address _addr) private view returns (bool) {
         uint32 size;
         assembly {
@@ -69,13 +49,9 @@ contract my_ERC721_Token {
         return (size > 0);
     }
     function checkSafeTransfer(
-        address operator, 
-        address from, 
-        address to, 
-        uint256 tokenID, 
-        bytes memory data
+        address operator, address from, address to, uint256 tokenID, bytes memory data
     ) private {
-        bytes4 magic = IERC721TokenReceiver(to).onERC721Received(
+        bytes4 magic = IERC721Receiver(to).onERC721Received(
             operator, from, tokenID, data
         );
         require(magic == bytes4(keccak256(
@@ -85,6 +61,7 @@ contract my_ERC721_Token {
     function safeTransferFrom(
         address from, address to, uint256 tokenID, bytes memory data
     ) public {
+        _checkTransfer(msg.sender, from, to, tokenID);
         _transferFrom(from, to, tokenID);
         if (isContract(to))
             checkSafeTransfer(msg.sender, from, to, tokenID, data);
@@ -96,44 +73,73 @@ contract my_ERC721_Token {
     }
 
     function transferFrom(address from, address to, uint256 tokenID) public {
+        _checkTransfer(msg.sender, from, to, tokenID);
         _transferFrom(from, to, tokenID);
+
         emit Transfer(from, to, tokenID);
     }
 
-    function _transferFrom(address from, address to, uint256 tokenID) private {
-        require(from != address(0));
-        require(to != address(0));
+    function _checkTransfer(
+        address caller, address from, address to, uint256 tokenID
+    ) private view returns (bool) {
+        require(from != address(0), "invalid <from> address");
+        require(to != address(0), "invalid <to> address");
+        require(from != to, "can't transfer to yourself");
 
-        require(from == ownerOf(tokenID));
+        require(from == ownerOf(tokenID), "<tokenID> does not belong to <from>");
         require(
-            msg.sender == from ||
-            msg.sender == getApproved(tokenID) ||
-            isApprovedForAll(from, msg.sender)
+            caller == from ||
+            caller == getApproved(tokenID) ||
+            isApprovedForAll(from, caller),
+            "msg.sender is not authorized"
         );
-        
-        _balances[from]--;
-        _balances[to]++;
-        _owners[tokenID] = to;
 
-        approve(address(0), tokenID);
+        return true;
+    }
+
+    function _removeToken(address account, uint256 tokenID) private {
+        uint256 length = balanceOf(account);
+        uint256 index = _indexOfToken[tokenID];
+        assert(index < length);
+
+        _ownedTokens[account][index] = _ownedTokens[account][length - 1];
+        _ownedTokens[account].pop();
+    }
+    function _insertToken(address account, uint256 tokenID) private {
+        _indexOfToken[tokenID] = balanceOf(account);
+        _ownedTokens[account].push(tokenID);
+        _owners[tokenID] = account;
+    }
+    function _transferFrom(address from, address to, uint256 tokenID) private {
+        _removeToken(from, tokenID);
+        _insertToken(to, tokenID);
+
+        _approve(address(0), tokenID);
     }
 
     mapping (uint256 => address) _approved;
-    event Approval(address, address, uint256);
+    event Approval(address indexed from, address indexed to, uint256 indexed tokenID);
+    function _checkApproval(address caller, address owner) private view returns (bool) {
+        require(
+            owner == caller ||
+            isApprovedForAll(owner, caller)
+        );
+        return true;
+    }
+    function _approve(address approved, uint256 tokenID) private {
+        _approved[tokenID] = approved;
+        emit Approval(ownerOf(tokenID), approved, tokenID);
+    }
     function approve(address approved, uint256 tokenID) public {
         address owner = ownerOf(tokenID);
-        require(
-            msg.sender == owner ||
-            isApprovedForAll(owner, msg.sender)
-        );
-
-        _approved[tokenID] = approved;
-        emit Approval(owner, approved, tokenID);
+        _checkApproval(msg.sender, owner);
+        _approve(approved, tokenID);
     }
 
     mapping (address => mapping (address => bool)) _isOperator;
-    event ApprovalForAll(address, address, bool);
+    event ApprovalForAll(address indexed from, address indexed to, bool approved);
     function setApprovalForAll(address operator, bool approved) public {
+        require(operator != address(0));
         _isOperator[msg.sender][operator] = approved;
         emit ApprovalForAll(msg.sender, operator, approved);
     }
@@ -149,9 +155,11 @@ contract my_ERC721_Token {
         return _isOperator[owner][operator];
     }
 
-    mapping (bytes4 => bool) private supportedInterfaces;
-    function supportsInterface(bytes4 interfaceID) public view returns (bool) {
-        return supportedInterfaces[interfaceID];
+    function supportsInterface(bytes4 interfaceID) public pure returns (bool) {
+        return (
+            interfaceID == bytes4(0x01ffc9a7) ||
+            interfaceID == bytes4(0x80ac58cd)
+        );
     }
 
     mapping (uint256 => string) _uris;
@@ -163,17 +171,35 @@ contract my_ERC721_Token {
         return _uris[tokenID];
     }
 
-    uint256 private _tokenCounter;
     address private _minter;
     function mint(address to, string memory _tokenURI) public {
         require(msg.sender == _minter);
         require(to != address(0));
 
-        uint tokenID = _tokenCounter++;
-        _owners[tokenID] = to;
+        _totalSupply++;
+        uint tokenID = _totalSupply;
         _uris[tokenID] = _tokenURI;
-        _balances[to]++;
+        _insertToken(to, tokenID);
 
         emit Transfer(address(0), to, tokenID);
+    }
+
+    uint256 private _totalSupply;
+    function totalSupply() public view returns (uint256) {
+        return _totalSupply;
+    }
+
+    function tokenByIndex(uint256 index) public view returns (uint256) {
+        require(index < _totalSupply);
+        return index + 1;
+    }
+
+    mapping (address => uint256[]) _ownedTokens;
+    mapping (uint256 => uint256) _indexOfToken;
+    function tokenOfOwnerByIndex(
+        address owner, uint256 index
+    ) public view returns (uint256) {
+        require(index < balanceOf(owner));
+        return _ownedTokens[owner][index];
     }
 }
