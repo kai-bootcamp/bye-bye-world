@@ -1,0 +1,33 @@
+<head>
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+  <script src="mintNFT.js"></script>
+  <script src="pinata.js"></script>
+</head>
+
+<body>
+  <label for="image">Upload image (jpg / png)</label>
+  <input type="file" id="image" accept=".png, .jpg">
+  <br>
+  <label for="name">Name: </label>
+  <input id="name">
+  <br>
+  <label for="level">Level: </label>
+  <input type="number" id="level">
+  <br>
+  <label for="attribute">Attribute: </label>
+  <select id="attribute">
+    <option value="DIVINE">------</option>
+    <option>DARK</option>
+    <option>FIRE</option>
+    <option>EARTH</option>
+    <option>LIGHT</option>
+    <option>WATER</option>
+    <option>WIND</option>
+  </select>
+  <br>
+  <label for="tribe">Tribe: </label>
+  <input id="tribe">
+  <br>
+  <button onclick="pinToPinata()">Pin IPFS</button>
+  <button onclick="mintNFT()">Mint NFT</button>
+</body>
