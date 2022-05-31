@@ -9,7 +9,7 @@ async function initialize() {
     
     const response = await fetch("./ERC721_Token.abi.json");
     const contract_abi = await response.json();
-    const contract_address = "0x2B3210F5fd805f17E6F20B4052eAe6A9fD24E734";
+    const contract_address = "0xd0be72a155c8489eba2f26d601f5c1f385e48fdd";
     contract = new ethers.Contract(contract_address, contract_abi, signer);
 }
 
