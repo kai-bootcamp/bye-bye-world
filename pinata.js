@@ -10,12 +10,24 @@ function checkFormData() {
 async function pinToPinata() {
     if (!checkFormData())
         return;
-    let files = document.querySelector("#image").files;
-    if (files.length == 0) {
-        alert("No file selected.");
-        return;
+    var url = document.querySelector("#image-url").value;
+    if (url != "") {
+        let response = await fetch(url);
+        if (response.status == 200) {
+            let file = await response.blob();
+            await pinFile(file);
+        } else {
+            console.log(response);
+            return;
+        }
+    } else {
+        let files = document.querySelector("#image").files;
+        if (files.length == 0) {
+            alert("No file selected.");
+            return;
+        }
+        await pinFile(files[0]);
     }
-    await pinFile(files[0]);
     let json = makeJSON();
     await pinJSON(json);
 }
