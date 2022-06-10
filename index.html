@@ -1,0 +1,26 @@
+<head>
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js"></script>
+  <script src="pinata.js"></script>
+  <script src="main.js"></script>
+</head>
+
+<body onload="onLoad()">
+  <label for="contract-hash">
+    Enter contract hash (e.g. 0xd0be72a155c8489eba2f26d601f5c1f385e48fdd)
+  </label><br>
+  <input id="contract-hash">
+  <button onclick="loadContract()">Load</button><br>
+  <div style="display:flex; flex-direction:row; height:75%">
+    <img id="token-image" style="height:75%" src="resources/empty.png">
+    <div style="display:flex; flex-direction:column">
+      <div>
+        Token ID:
+        <button onclick="decrementTokenID()">PRV</button>
+        <input id="tokenID" type="number" disabled="true" style="width:3em">
+        <button onclick="incrementTokenID()">NXT</button>
+      </div>
+      <span>Attributes:</span>
+      <ul id="token-attributes"></ul>
+    </div>
+  </div>
+</body>
